@@ -51,6 +51,7 @@ import { Report } from "@/types";
 
 export function ReportsTable() {
   const [reports, setReports] = useState<Report[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   const getReports = async () => {
     const { data, error } = await supabase
@@ -72,6 +73,25 @@ export function ReportsTable() {
     getReports();
   }, []);
 
+  const updateReportStatus = async (reportId: string, status: string) => {
+    const { error } = await supabase
+      .from("reports")
+      .update({ status })
+      .eq("id", reportId);
+
+    if (error) {
+      alert(error.message);
+      setIsLoading(false);
+      return;
+    }
+
+    alert(`Report ${status} successfully`);
+    setIsLoading(false);
+
+    setTimeout(() => {
+      getReports();
+    }, 500);
+  };
   const [search, setSearch] = useState("");
   const [selectedReports, setSelectedReports] = useState<string[]>([]);
   const [filterStatus, setFilterStatus] = useState("all");
@@ -218,7 +238,7 @@ export function ReportsTable() {
                       {report.description}
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      {report.userName || "Anonymous"}
+                      {report.user_name || "Anonymous"}
                     </p>
                   </div>
                 </TableCell>
@@ -264,11 +284,21 @@ export function ReportsTable() {
                         View on Map
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
-                      <DropdownMenuItem className="gap-2 text-success">
+                      <DropdownMenuItem
+                        onClick={() =>
+                          updateReportStatus(report.id, "verified")
+                        }
+                        className="gap-2 text-success"
+                      >
                         <CheckCircle2 size={14} />
                         Verify
                       </DropdownMenuItem>
-                      <DropdownMenuItem className="gap-2 text-destructive">
+                      <DropdownMenuItem
+                        onClick={() =>
+                          updateReportStatus(report.id, "rejected")
+                        }
+                        className="gap-2 text-destructive"
+                      >
                         <XCircle size={14} />
                         Reject
                       </DropdownMenuItem>

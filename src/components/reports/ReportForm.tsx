@@ -43,6 +43,7 @@ import {
 import { cn } from "@/lib/utils";
 import { supabase } from "@/utils/supabase";
 import { useNavigate } from "react-router-dom";
+import { useAuthStore } from "@/utils/useAuthStore";
 
 const iconMap = {
   Waves,
@@ -74,6 +75,7 @@ const infrastructureOptions = [
 
 export function ReportForm() {
   const navigate = useNavigate();
+  const { user } = useAuthStore();
   const [isLoading, setIsLoading] = useState(false);
   const [step, setStep] = useState(1);
   const [incidentType, setIncidentType] = useState<IncidentType | null>(null);
@@ -186,6 +188,7 @@ export function ReportForm() {
     water_depth: waterDepth,
     description,
     severity,
+    user_name: user.name,
   };
 
   const submit = async () => {

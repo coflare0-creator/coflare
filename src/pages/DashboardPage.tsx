@@ -97,16 +97,16 @@ export default function DashboardPage() {
             <CardHeader className="pb-2">
               <div className="flex items-center justify-between">
                 <CardTitle>Recent Reports</CardTitle>
-                <Link to="/reports">
+                {/* <Link to="/reports">
                   <Button variant="ghost" size="sm" className="gap-1">
                     View All
                     <ArrowRight size={16} />
                   </Button>
-                </Link>
+                </Link> */}
               </div>
             </CardHeader>
             <CardContent className="space-y-4">
-              {reports.map((report) => (
+              {reports.slice(0, 5).map((report) => (
                 <div
                   key={report.id}
                   className="p-3 rounded-lg border hover:bg-muted/50 transition-colors cursor-pointer"

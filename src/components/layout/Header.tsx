@@ -74,28 +74,38 @@ export function Header() {
 
           {}
           <nav className="hidden lg:flex items-center gap-1">
-            {navLinks.map((link) => {
-              const isActive = location.pathname === link.href;
-              return (
-                <Link
-                  key={link.href}
-                  to={link.href}
-                  className={cn(
-                    "flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all",
-                    isLanding && !isScrolled
-                      ? isActive
-                        ? "bg-white/20 text-white"
-                        : "text-white/80 hover:text-white hover:bg-white/10"
-                      : isActive
-                        ? "bg-primary/10 text-primary"
-                        : "text-muted-foreground hover:text-foreground hover:bg-muted",
-                  )}
-                >
-                  <link.icon size={18} />
-                  {link.label}
-                </Link>
-              );
-            })}
+            {navLinks
+              .filter((link) => {
+                if (
+                  link.href === "/reports" &&
+                  user?.email !== "coflare@gmail.com"
+                ) {
+                  return false;
+                }
+                return true;
+              })
+              .map((link) => {
+                const isActive = location.pathname === link.href;
+                return (
+                  <Link
+                    key={link.href}
+                    to={link.href}
+                    className={cn(
+                      "flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all",
+                      isLanding && !isScrolled
+                        ? isActive
+                          ? "bg-white/20 text-white"
+                          : "text-white/80 hover:text-white hover:bg-white/10"
+                        : isActive
+                          ? "bg-primary/10 text-primary"
+                          : "text-muted-foreground hover:text-foreground hover:bg-muted",
+                    )}
+                  >
+                    <link.icon size={18} />
+                    {link.label}
+                  </Link>
+                );
+              })}
           </nav>
 
           {}
@@ -215,25 +225,35 @@ export function Header() {
             className="lg:hidden bg-background border-b"
           >
             <nav className="container mx-auto px-4 py-4 space-y-1">
-              {navLinks.map((link) => {
-                const isActive = location.pathname === link.href;
-                return (
-                  <Link
-                    key={link.href}
-                    to={link.href}
-                    onClick={() => setMobileMenuOpen(false)}
-                    className={cn(
-                      "flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-colors",
-                      isActive
-                        ? "bg-primary/10 text-primary"
-                        : "text-muted-foreground hover:text-foreground hover:bg-muted",
-                    )}
-                  >
-                    <link.icon size={20} />
-                    {link.label}
-                  </Link>
-                );
-              })}
+              {navLinks
+                .filter((link) => {
+                  if (
+                    link.href === "/reports" &&
+                    user?.email !== "coflare@gmail.com"
+                  ) {
+                    return false;
+                  }
+                  return true;
+                })
+                .map((link) => {
+                  const isActive = location.pathname === link.href;
+                  return (
+                    <Link
+                      key={link.href}
+                      to={link.href}
+                      onClick={() => setMobileMenuOpen(false)}
+                      className={cn(
+                        "flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-colors",
+                        isActive
+                          ? "bg-primary/10 text-primary"
+                          : "text-muted-foreground hover:text-foreground hover:bg-muted",
+                      )}
+                    >
+                      <link.icon size={20} />
+                      {link.label}
+                    </Link>
+                  );
+                })}
               <Link
                 to="/submit"
                 onClick={() => setMobileMenuOpen(false)}

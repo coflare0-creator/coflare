@@ -28,7 +28,7 @@ export interface User {
 export interface Report {
   id: string;
   user_id: string;
-  userName?: string;
+  user_name?: string;
   incident_type: IncidentType;
   description: string;
   severity: SeverityLevel;
