@@ -26,6 +26,8 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuthStore } from "@/utils/useAuthStore";
+import { supabase } from "@/utils/supabase";
+import { useNavigate } from "react-router-dom";
 
 const navLinks = [
   { href: "/map", label: "Live Map", icon: MapPin },
@@ -35,11 +37,12 @@ const navLinks = [
 ];
 
 export function Header() {
-  const { user } = useAuthStore();
+  const { user, clearUser } = useAuthStore();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const location = useLocation();
   const isLanding = location.pathname === "/";
+  const navigate = useNavigate();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -48,6 +51,21 @@ export function Header() {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  const handleSignOut = async () => {
+    const { error } = await supabase.auth.signOut();
+
+    if (error) {
+      console.error(error.message);
+      return;
+    }
+
+    setTimeout(() => {
+      clearUser();
+
+      navigate("/");
+    }, 500);
+  };
 
   return (
     <header
@@ -118,7 +136,7 @@ export function Header() {
             </Link>
 
             {}
-            {user?.id && (
+            {user?.id ? (
               <>
                 <Button
                   variant="ghost"
@@ -155,48 +173,66 @@ export function Header() {
                       </Avatar>
                     </Button>
                   </DropdownMenuTrigger>
+
                   <DropdownMenuContent align="end" className="w-56">
                     <div className="px-3 py-2">
                       <p className="font-medium">{user.name}</p>
                       <p className="text-sm text-muted-foreground">
-                        {user.email}{" "}
+                        {user.email}
                       </p>
                     </div>
+
                     <DropdownMenuSeparator />
+
                     <DropdownMenuItem asChild>
                       <Link to="/dashboard" className="gap-2 cursor-pointer">
                         <LayoutDashboard size={16} />
                         Dashboard
                       </Link>
                     </DropdownMenuItem>
+
                     <DropdownMenuItem asChild>
                       <Link to="/my-reports" className="gap-2 cursor-pointer">
                         <FileText size={16} />
                         My Reports
                       </Link>
                     </DropdownMenuItem>
+
                     <DropdownMenuItem asChild>
-                      <Link
-                        to="/settings"
-                        className="gap-2 cursor-pointer text-foreground"
-                      >
+                      <Link to="/settings" className="gap-2 cursor-pointer">
                         <Settings size={16} />
                         Settings
                       </Link>
                     </DropdownMenuItem>
+
                     <DropdownMenuSeparator />
+
                     <DropdownMenuItem asChild>
-                      <Link
-                        to="/login"
+                      <div
+                        onClick={handleSignOut}
                         className="gap-2 cursor-pointer text-destructive"
                       >
                         <LogOut size={16} />
                         Sign Out
-                      </Link>
+                      </div>
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
               </>
+            ) : (
+              // 👇 GUEST UI
+              <Link to="/login">
+                <Button
+                  className={cn(
+                    "font-medium",
+                    isLanding && !isScrolled
+                      ? "bg-white text-black hover:bg-white/90"
+                      : "",
+                  )}
+                >
+                  My Account
+                </Button>
+              </Link>
             )}
 
             {}

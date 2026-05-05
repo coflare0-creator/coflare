@@ -188,7 +188,7 @@ export function ReportForm() {
     water_depth: waterDepth,
     description,
     severity,
-    user_name: user.name,
+    user_name: user?.name,
   };
 
   const submit = async () => {
