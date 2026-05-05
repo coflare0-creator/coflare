@@ -1,9 +1,9 @@
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { Card } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import { motion } from "framer-motion";
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   Table,
   TableBody,
@@ -11,27 +11,27 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
+} from "@/components/ui/table";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+} from "@/components/ui/dropdown-menu";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { Checkbox } from '@/components/ui/checkbox';
-import { IncidentBadge } from '@/components/ui/incident-badge';
-import { SeverityDots } from '@/components/ui/severity-indicator';
-import { StatusBadge } from '@/components/ui/status-badge';
-import { mockReports } from '@/data/mockData';
-import { format } from 'date-fns';
+} from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
+import { IncidentBadge } from "@/components/ui/incident-badge";
+import { SeverityDots } from "@/components/ui/severity-indicator";
+import { StatusBadge } from "@/components/ui/status-badge";
+import { mockReports } from "@/data/mockData";
+import { format } from "date-fns";
 import {
   Search,
   Filter,
@@ -44,21 +44,46 @@ import {
   ChevronLeft,
   ChevronRight,
   MapPin,
-} from 'lucide-react';
-import { incidentTypeConfig } from '@/types';
+} from "lucide-react";
+import { incidentTypeConfig } from "@/types";
+import { supabase } from "@/utils/supabase";
+import { Report } from "@/types";
 
 export function ReportsTable() {
-  const [search, setSearch] = useState('');
-  const [selectedReports, setSelectedReports] = useState<string[]>([]);
-  const [filterStatus, setFilterStatus] = useState('all');
-  const [filterType, setFilterType] = useState('all');
+  const [reports, setReports] = useState<Report[]>([]);
 
-  const filteredReports = mockReports.filter((report) => {
-    if (filterStatus !== 'all' && report.status !== filterStatus) return false;
-    if (filterType !== 'all' && report.type !== filterType) return false;
+  const getReports = async () => {
+    const { data, error } = await supabase
+      .from("reports")
+      .select("*")
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      console.error(error.message);
+      return;
+    }
+
+    //console.log(data);
+
+    setReports(data);
+  };
+
+  useEffect(() => {
+    getReports();
+  }, []);
+
+  const [search, setSearch] = useState("");
+  const [selectedReports, setSelectedReports] = useState<string[]>([]);
+  const [filterStatus, setFilterStatus] = useState("all");
+  const [filterType, setFilterType] = useState("all");
+
+  const filteredReports = reports.filter((report) => {
+    if (filterStatus !== "all" && report.status !== filterStatus) return false;
+    if (filterType !== "all" && report.incident_type !== filterType)
+      return false;
     if (
       search &&
-      !report.locationName.toLowerCase().includes(search.toLowerCase()) &&
+      !report.location_name.toLowerCase().includes(search.toLowerCase()) &&
       !report.description.toLowerCase().includes(search.toLowerCase())
     )
       return false;
@@ -67,7 +92,7 @@ export function ReportsTable() {
 
   const toggleReport = (id: string) => {
     setSelectedReports((prev) =>
-      prev.includes(id) ? prev.filter((r) => r !== id) : [...prev, id]
+      prev.includes(id) ? prev.filter((r) => r !== id) : [...prev, id],
     );
   };
 
@@ -137,7 +162,11 @@ export function ReportsTable() {
             <CheckCircle2 size={14} />
             Verify
           </Button>
-          <Button size="sm" variant="outline" className="gap-1.5 text-destructive">
+          <Button
+            size="sm"
+            variant="outline"
+            className="gap-1.5 text-destructive"
+          >
             <XCircle size={14} />
             Reject
           </Button>
@@ -189,27 +218,30 @@ export function ReportsTable() {
                       {report.description}
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      {report.userName || 'Anonymous'}
+                      {report.userName || "Anonymous"}
                     </p>
                   </div>
                 </TableCell>
                 <TableCell>
-                  <IncidentBadge type={report.type} size="sm" />
+                  <IncidentBadge type={report.incident_type} size="sm" />
                 </TableCell>
                 <TableCell>
                   <SeverityDots level={report.severity} />
                 </TableCell>
                 <TableCell>
                   <div className="flex items-center gap-1.5 text-sm max-w-[200px]">
-                    <MapPin size={14} className="text-muted-foreground shrink-0" />
-                    <span className="truncate">{report.locationName}</span>
+                    <MapPin
+                      size={14}
+                      className="text-muted-foreground shrink-0"
+                    />
+                    <span className="truncate">{report.location_name}</span>
                   </div>
                 </TableCell>
                 <TableCell>
                   <StatusBadge status={report.status} />
                 </TableCell>
                 <TableCell className="text-sm text-muted-foreground">
-                  {format(report.createdAt, 'MMM d, h:mm a')}
+                  {format(report.created_at, "MMM d, h:mm a")}
                 </TableCell>
                 <TableCell>
                   <DropdownMenu>
@@ -252,7 +284,7 @@ export function ReportsTable() {
       {}
       <div className="p-4 border-t flex items-center justify-between">
         <p className="text-sm text-muted-foreground">
-          Showing {filteredReports.length} of {mockReports.length} reports
+          Showing {filteredReports.length} of {reports.length} reports
         </p>
         <div className="flex items-center gap-2">
           <Button variant="outline" size="sm" disabled>

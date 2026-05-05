@@ -1,18 +1,18 @@
-export type IncidentType = 
-  | 'flood'
-  | 'rain'
-  | 'storm'
-  | 'heat'
-  | 'waste'
-  | 'pollution'
-  | 'water-scarcity'
-  | 'hazard';
+export type IncidentType =
+  | "flood"
+  | "rain"
+  | "storm"
+  | "heat"
+  | "waste"
+  | "pollution"
+  | "water-scarcity"
+  | "hazard";
 
 export type SeverityLevel = 1 | 2 | 3 | 4 | 5;
 
-export type ReportStatus = 'pending' | 'verified' | 'rejected';
+export type ReportStatus = "pending" | "verified" | "rejected";
 
-export type UserRole = 'citizen' | 'verifier' | 'admin' | 'organization';
+export type UserRole = "citizen" | "verifier" | "admin" | "organization";
 
 export interface User {
   id: string;
@@ -22,25 +22,25 @@ export interface User {
   role: UserRole;
   verified: boolean;
   avatar?: string;
-  createdAt: Date;
+  created_at: string;
 }
 
 export interface Report {
   id: string;
-  userId: string;
+  user_id: string;
   userName?: string;
-  type: IncidentType;
+  incident_type: IncidentType;
   description: string;
   severity: SeverityLevel;
   latitude: number;
   longitude: number;
-  locationName: string;
+  location_name: string;
   mediaUrls: string[];
-  waterDepth?: 'ankle' | 'knee' | 'waist' | 'above';
+  water_depth?: "ankle" | "knee" | "waist" | "above";
   infrastructureImpact?: string[];
   status: ReportStatus;
-  createdAt: Date;
-  verifiedAt?: Date;
+  created_at: string;
+  verifiedAt?: string;
   verifiedBy?: string;
 }
 
@@ -63,7 +63,7 @@ export interface VerificationLog {
   verifiedBy: string;
   status: ReportStatus;
   notes: string;
-  timestamp: Date;
+  timestamp: string;
 }
 
 export interface DashboardStats {
@@ -76,21 +76,32 @@ export interface DashboardStats {
   reportsChange: number;
 }
 
-export const incidentTypeConfig: Record<IncidentType, { label: string; icon: string; color: string }> = {
-  flood: { label: 'Flooding', icon: 'Waves', color: 'flood' },
-  rain: { label: 'Heavy Rainfall', icon: 'CloudRain', color: 'rain' },
-  storm: { label: 'Storm', icon: 'CloudLightning', color: 'storm' },
-  heat: { label: 'Heat Wave', icon: 'Thermometer', color: 'heat' },
-  waste: { label: 'Waste Dumping', icon: 'Trash2', color: 'waste' },
-  pollution: { label: 'Air Pollution', icon: 'Wind', color: 'pollution' },
-  'water-scarcity': { label: 'Water Scarcity', icon: 'Droplets', color: 'water-scarcity' },
-  hazard: { label: 'Environmental Hazard', icon: 'AlertTriangle', color: 'hazard' },
+export const incidentTypeConfig: Record<
+  IncidentType,
+  { label: string; icon: string; color: string }
+> = {
+  flood: { label: "Flooding", icon: "Waves", color: "flood" },
+  rain: { label: "Heavy Rainfall", icon: "CloudRain", color: "rain" },
+  storm: { label: "Storm", icon: "CloudLightning", color: "storm" },
+  heat: { label: "Heat Wave", icon: "Thermometer", color: "heat" },
+  waste: { label: "Waste Dumping", icon: "Trash2", color: "waste" },
+  pollution: { label: "Air Pollution", icon: "Wind", color: "pollution" },
+  "water-scarcity": {
+    label: "Water Scarcity",
+    icon: "Droplets",
+    color: "water-scarcity",
+  },
+  hazard: {
+    label: "Environmental Hazard",
+    icon: "AlertTriangle",
+    color: "hazard",
+  },
 };
 
 export const severityLabels: Record<SeverityLevel, string> = {
-  1: 'Minor',
-  2: 'Moderate',
-  3: 'Significant',
-  4: 'Severe',
-  5: 'Critical',
+  1: "Minor",
+  2: "Moderate",
+  3: "Significant",
+  4: "Severe",
+  5: "Critical",
 };

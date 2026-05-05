@@ -1,21 +1,29 @@
-import { useEffect, useRef, useState } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, useMap, CircleMarker, LayerGroup } from 'react-leaflet';
-import { LatLngExpression, Icon, DivIcon } from 'leaflet';
-import { mockReports, mockAlerts } from '@/data/mockData';
-import { IncidentBadge } from '@/components/ui/incident-badge';
-import { SeverityIndicator } from '@/components/ui/severity-indicator';
-import { StatusBadge } from '@/components/ui/status-badge';
-import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
+import { useEffect, useRef, useState } from "react";
+import {
+  MapContainer,
+  TileLayer,
+  Marker,
+  Popup,
+  useMap,
+  CircleMarker,
+  LayerGroup,
+} from "react-leaflet";
+import { LatLngExpression, Icon, DivIcon } from "leaflet";
+import { mockReports, mockAlerts } from "@/data/mockData";
+import { IncidentBadge } from "@/components/ui/incident-badge";
+import { SeverityIndicator } from "@/components/ui/severity-indicator";
+import { StatusBadge } from "@/components/ui/status-badge";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { Checkbox } from '@/components/ui/checkbox';
+} from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Filter,
   Layers,
@@ -27,23 +35,23 @@ import {
   ExternalLink,
   Clock,
   Loader2,
-} from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { IncidentType, Report, incidentTypeConfig } from '@/types';
-import { format } from 'date-fns';
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+import { IncidentType, Report, incidentTypeConfig } from "@/types";
+import { format } from "date-fns";
 
-const NIGERIA_CENTER: LatLngExpression = [9.0820, 8.6753];
+const NIGERIA_CENTER: LatLngExpression = [9.082, 8.6753];
 
 function createIncidentIcon(type: IncidentType, severity: number) {
   const colors: Record<IncidentType, string> = {
-    flood: '#2596be',
-    rain: '#4aa8d8',
-    storm: '#7c5bb0',
-    heat: '#e87f3e',
-    waste: '#8b6914',
-    pollution: '#9b59b6',
-    'water-scarcity': '#e67e22',
-    hazard: '#e74c3c',
+    flood: "#2596be",
+    rain: "#4aa8d8",
+    storm: "#7c5bb0",
+    heat: "#e87f3e",
+    waste: "#8b6914",
+    pollution: "#9b59b6",
+    "water-scarcity": "#e67e22",
+    hazard: "#e74c3c",
   };
 
   return new DivIcon({
@@ -55,7 +63,7 @@ function createIncidentIcon(type: IncidentType, severity: number) {
         </div>
       </div>
     `,
-    className: 'custom-incident-marker',
+    className: "custom-incident-marker",
     iconSize: [32, 32],
     iconAnchor: [16, 16],
   });
@@ -66,11 +74,14 @@ function MapControls() {
 
   useEffect(() => {
     if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition((pos) => {
-        map.setView([pos.coords.latitude, pos.coords.longitude], 14);
-      }, (err) => {
-        console.warn('Geolocation failed or was denied:', err);
-      });
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          map.setView([pos.coords.latitude, pos.coords.longitude], 14);
+        },
+        (err) => {
+          console.warn("Geolocation failed or was denied:", err);
+        },
+      );
     }
   }, [map]);
 
@@ -115,7 +126,7 @@ function MapUpdater({ center }: { center: LatLngExpression | null }) {
   useEffect(() => {
     if (center) {
       map.flyTo(center, 13, {
-        duration: 1.5
+        duration: 1.5,
       });
     }
   }, [center, map]);
@@ -135,8 +146,8 @@ function AlertZones({ show }: { show: boolean }) {
             center={[alert.latitude, alert.longitude]}
             radius={alert.radius * 3}
             pathOptions={{
-              color: 'rgba(239, 68, 68, 0.5)',
-              fillColor: 'rgba(239, 68, 68, 0.2)',
+              color: "rgba(239, 68, 68, 0.5)",
+              fillColor: "rgba(239, 68, 68, 0.2)",
               fillOpacity: 0.4,
               weight: 2,
             }}
@@ -148,7 +159,7 @@ function AlertZones({ show }: { show: boolean }) {
 
 function IncidentMarkers({
   reports,
-  onMarkerClick
+  onMarkerClick,
 }: {
   reports: Report[];
   onMarkerClick: (report: Report) => void;
@@ -159,7 +170,7 @@ function IncidentMarkers({
         <Marker
           key={report.id}
           position={[report.latitude, report.longitude]}
-          icon={createIncidentIcon(report.type, report.severity)}
+          icon={createIncidentIcon(report.incident_type, report.severity)}
           eventHandlers={{
             click: () => onMarkerClick(report),
           }}
@@ -178,21 +189,23 @@ interface IncidentMapProps {
 }
 
 export function IncidentMap({
-  reports = mockReports,
+  reports,
   className,
   showFilters = true,
   showLegend = true,
-  height = '600px',
+  height = "600px",
 }: IncidentMapProps) {
   const [selectedReport, setSelectedReport] = useState<Report | null>(null);
-  const [filterType, setFilterType] = useState<string>('all');
-  const [filterSeverity, setFilterSeverity] = useState<string>('all');
+  const [filterType, setFilterType] = useState<string>("all");
+  const [filterSeverity, setFilterSeverity] = useState<string>("all");
   const [showAlertZones, setShowAlertZones] = useState(true);
 
-  const [addressQuery, setAddressQuery] = useState('');
+  const [addressQuery, setAddressQuery] = useState("");
   const [suggestions, setSuggestions] = useState<any[]>([]);
   const [isSearching, setIsSearching] = useState(false);
-  const [searchCenter, setSearchCenter] = useState<LatLngExpression | null>(null);
+  const [searchCenter, setSearchCenter] = useState<LatLngExpression | null>(
+    null,
+  );
 
   useEffect(() => {
     const searchAddress = async () => {
@@ -202,11 +215,13 @@ export function IncidentMap({
       }
       setIsSearching(true);
       try {
-        const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(addressQuery)}&limit=5`);
+        const res = await fetch(
+          `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(addressQuery)}&limit=5`,
+        );
         const data = await res.json();
         setSuggestions(data);
       } catch (error) {
-        console.error('Failed to fetch address suggestions:', error);
+        console.error("Failed to fetch address suggestions:", error);
       } finally {
         setIsSearching(false);
       }
@@ -217,13 +232,21 @@ export function IncidentMap({
   }, [addressQuery]);
 
   const filteredReports = reports.filter((report) => {
-    if (filterType !== 'all' && report.type !== filterType) return false;
-    if (filterSeverity !== 'all' && report.severity !== parseInt(filterSeverity)) return false;
+    if (filterType !== "all" && report.incident_type !== filterType)
+      return false;
+    if (
+      filterSeverity !== "all" &&
+      report.severity !== parseInt(filterSeverity)
+    )
+      return false;
     return true;
   });
 
   return (
-    <div className={cn('relative rounded-xl overflow-hidden', className)} style={{ height }}>
+    <div
+      className={cn("relative rounded-xl overflow-hidden", className)}
+      style={{ height }}
+    >
       <MapContainer
         center={NIGERIA_CENTER}
         zoom={6}
@@ -270,7 +293,10 @@ export function IncidentMap({
                 className="px-4 py-3 hover:bg-accent hover:text-accent-foreground cursor-pointer text-sm border-b last:border-0 transition-colors"
                 onClick={() => {
                   setAddressQuery(suggestion.display_name);
-                  setSearchCenter([parseFloat(suggestion.lat), parseFloat(suggestion.lon)]);
+                  setSearchCenter([
+                    parseFloat(suggestion.lat),
+                    parseFloat(suggestion.lon),
+                  ]);
                   setSuggestions([]);
                 }}
               >
@@ -340,74 +366,69 @@ export function IncidentMap({
             </div>
           </div>
         </Card>
-      )
-      }
+      )}
 
       {}
-      {
-        showLegend && (
-          <Card className="absolute left-4 bottom-4 z-[1000] p-3 bg-card/95 backdrop-blur-sm">
-            <div className="flex items-center gap-2 mb-2">
-              <Layers size={16} className="text-muted-foreground" />
-              <span className="text-sm font-medium">Legend</span>
-            </div>
-            <div className="grid grid-cols-2 gap-2 text-xs">
-              {Object.entries(incidentTypeConfig)
-                .slice(0, 6)
-                .map(([key, config]) => (
-                  <div key={key} className="flex items-center gap-1.5">
-                    <span
-                      className={cn('w-3 h-3 rounded-full', `incident-${key}`)}
-                    />
-                    <span className="text-muted-foreground">{config.label}</span>
-                  </div>
-                ))}
-            </div>
-          </Card>
-        )
-      }
+      {showLegend && (
+        <Card className="absolute left-4 bottom-4 z-[1000] p-3 bg-card/95 backdrop-blur-sm">
+          <div className="flex items-center gap-2 mb-2">
+            <Layers size={16} className="text-muted-foreground" />
+            <span className="text-sm font-medium">Legend</span>
+          </div>
+          <div className="grid grid-cols-2 gap-2 text-xs">
+            {Object.entries(incidentTypeConfig)
+              .slice(0, 6)
+              .map(([key, config]) => (
+                <div key={key} className="flex items-center gap-1.5">
+                  <span
+                    className={cn("w-3 h-3 rounded-full", `incident-${key}`)}
+                  />
+                  <span className="text-muted-foreground">{config.label}</span>
+                </div>
+              ))}
+          </div>
+        </Card>
+      )}
 
       {}
-      {
-        selectedReport && (
-          <Card className="absolute right-4 bottom-4 z-[1000] p-4 w-80 bg-card/95 backdrop-blur-sm">
-            <div className="flex items-start justify-between mb-3">
-              <IncidentBadge type={selectedReport.type} />
-              <Button
-                size="icon"
-                variant="ghost"
-                className="h-8 w-8 -mr-2 -mt-2"
-                onClick={() => setSelectedReport(null)}
-              >
-                <X size={16} />
-              </Button>
-            </div>
-
-            <h4 className="font-semibold mb-2 line-clamp-2">
-              {selectedReport.locationName}
-            </h4>
-
-            <p className="text-sm text-muted-foreground mb-3 line-clamp-3">
-              {selectedReport.description}
-            </p>
-
-            <div className="flex items-center gap-4 mb-3">
-              <SeverityIndicator level={selectedReport.severity} size="sm" />
-              <StatusBadge status={selectedReport.status} />
-            </div>
-
-            <div className="flex items-center gap-2 text-sm text-muted-foreground mb-4">
-              <Clock size={14} />
-              {format(selectedReport.createdAt, 'MMM d, yyyy h:mm a')}
-            </div>
-
-            <Button className="w-full gap-2" size="sm">
-              View Details
-              <ExternalLink size={14} />
+      {selectedReport && (
+        <Card className="absolute right-4 bottom-4 z-[1000] p-4 w-80 bg-card/95 backdrop-blur-sm">
+          <div className="flex items-start justify-between mb-3">
+            <IncidentBadge type={selectedReport.incident_type} />
+            <Button
+              size="icon"
+              variant="ghost"
+              className="h-8 w-8 -mr-2 -mt-2"
+              onClick={() => setSelectedReport(null)}
+            >
+              <X size={16} />
             </Button>
-          </Card>
-        )
-      }
-    </div >
+          </div>
+
+          <h4 className="font-semibold mb-2 line-clamp-2">
+            {selectedReport.location_name}
+          </h4>
+
+          <p className="text-sm text-muted-foreground mb-3 line-clamp-3">
+            {selectedReport.description}
+          </p>
+
+          <div className="flex items-center gap-4 mb-3">
+            <SeverityIndicator level={selectedReport.severity} size="sm" />
+            <StatusBadge status={selectedReport.status} />
+          </div>
+
+          <div className="flex items-center gap-2 text-sm text-muted-foreground mb-4">
+            <Clock size={14} />
+            {format(selectedReport.created_at, "MMM d, yyyy h:mm a")}
+          </div>
+
+          <Button className="w-full gap-2" size="sm">
+            View Details
+            <ExternalLink size={14} />
+          </Button>
+        </Card>
+      )}
+    </div>
   );
 }
