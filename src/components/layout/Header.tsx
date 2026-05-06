@@ -23,6 +23,7 @@ import {
   Settings,
   LogOut,
   Plus,
+  User,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuthStore } from "@/utils/useAuthStore";
@@ -129,14 +130,15 @@ export function Header() {
           {}
           <div className="flex items-center gap-3">
             <Link to="/submit" className="hidden sm:block">
-              <Button className="gap-2 shadow-lg hover:shadow-xl transition-shadow">
+              <Button className="gap-2 hover:shadow-xl transition-shadow">
                 <Plus size={18} />
                 Report Incident
               </Button>
             </Link>
 
             {}
-            {user?.id ? (
+
+            {user?.id && (
               <>
                 <Button
                   variant="ghost"
@@ -176,9 +178,9 @@ export function Header() {
 
                   <DropdownMenuContent align="end" className="w-56">
                     <div className="px-3 py-2">
-                      <p className="font-medium">{user.name}</p>
+                      <p className="font-medium">{user?.name}</p>
                       <p className="text-sm text-muted-foreground">
-                        {user.email}
+                        {user?.email}
                       </p>
                     </div>
 
@@ -219,18 +221,13 @@ export function Header() {
                   </DropdownMenuContent>
                 </DropdownMenu>
               </>
-            ) : (
-              // 👇 GUEST UI
+            )}
+
+            {!user?.id && (
               <Link to="/login">
-                <Button
-                  className={cn(
-                    "font-medium",
-                    isLanding && !isScrolled
-                      ? "bg-white text-black hover:bg-white/90"
-                      : "",
-                  )}
-                >
-                  My Account
+                <Button className="gap-2 hover:shadow-xl transition-shadow">
+                  <User size={18} />
+                  Sign In
                 </Button>
               </Link>
             )}
