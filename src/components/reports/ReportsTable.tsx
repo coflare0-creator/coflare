@@ -53,9 +53,15 @@ import { useNavigate } from "react-router-dom";
 import { Dialog, DialogContent, DialogTitle } from "@radix-ui/react-dialog";
 import { DialogHeader, DialogOverlay } from "../ui/dialog";
 import axios from "axios";
+import { useAuthStore } from "@/utils/useAuthStore";
 
-export function ReportsTable() {
+type ReportsTableProps = {
+  user_id?: string | null;
+};
+
+export function ReportsTable({ user_id }: ReportsTableProps) {
   const navigate = useNavigate();
+  const { user } = useAuthStore();
   const [reports, setReports] = useState<Report[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -101,17 +107,22 @@ export function ReportsTable() {
   };
 
   const getReports = async () => {
-    const { data, error } = await supabase
+    let query = supabase
       .from("reports")
       .select("*")
       .order("created_at", { ascending: false });
+
+    // If user_id exists, filter by it
+    if (user_id) {
+      query = query.eq("user_id", user_id);
+    }
+
+    const { data, error } = await query;
 
     if (error) {
       console.error(error.message);
       return;
     }
-
-    //console.log(data);
 
     setReports(data);
   };
@@ -356,36 +367,41 @@ export function ReportsTable() {
                         View on Map
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
-                      <DropdownMenuItem
-                        onClick={() =>
-                          updateReportStatus(report.id, "verified")
-                        }
-                        className="gap-2 text-success"
-                      >
-                        <CheckCircle2 size={14} />
-                        Verify
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                        onClick={() =>
-                          updateReportStatus(report.id, "rejected")
-                        }
-                        className="gap-2 text-destructive"
-                      >
-                        <XCircle size={14} />
-                        Reject
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                        onClick={() => {
-                          setTimeout(() => {
-                            setSelectedReport(report);
-                            setAlertOpen(true);
-                          }, 0);
-                        }}
-                        className="gap-2 text-destructive"
-                      >
-                        <AlertCircleIcon size={14} />
-                        Alert
-                      </DropdownMenuItem>
+                      {user.email === "coflare@gmail.com" && (
+                        <>
+                          {" "}
+                          <DropdownMenuItem
+                            onClick={() =>
+                              updateReportStatus(report.id, "verified")
+                            }
+                            className="gap-2 text-success"
+                          >
+                            <CheckCircle2 size={14} />
+                            Verify
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={() =>
+                              updateReportStatus(report.id, "rejected")
+                            }
+                            className="gap-2 text-destructive"
+                          >
+                            <XCircle size={14} />
+                            Reject
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={() => {
+                              setTimeout(() => {
+                                setSelectedReport(report);
+                                setAlertOpen(true);
+                              }, 0);
+                            }}
+                            className="gap-2 text-destructive"
+                          >
+                            <AlertCircleIcon size={14} />
+                            Alert
+                          </DropdownMenuItem>{" "}
+                        </>
+                      )}
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </TableCell>

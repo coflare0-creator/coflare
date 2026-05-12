@@ -1,8 +1,20 @@
 import { motion } from "framer-motion";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { ReportsTable } from "@/components/reports/ReportsTable";
+import { useAuthStore } from "@/utils/useAuthStore";
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 export default function ReportsPage() {
+  const { user } = useAuthStore();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (user.email !== "coflare@gmail.com") {
+      navigate("/dashboard");
+    }
+  });
+
   return (
     <DashboardLayout>
       <div className="container mx-auto px-4 py-8">

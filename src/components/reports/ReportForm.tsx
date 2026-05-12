@@ -196,9 +196,7 @@ export function ReportForm() {
 
     const { success, error } = await supabase
       .from("reports")
-      .insert([
-        { ...payload, user_id: "9c9bdce4-2078-41e3-a461-4ed4bd293ed0" },
-      ]);
+      .insert([{ ...payload, user_id: user.id ?? null }]);
 
     if (error) {
       alert(error.message);
@@ -211,7 +209,7 @@ export function ReportForm() {
       setIsLoading(false);
 
       setTimeout(() => {
-        navigate("/reports");
+        navigate("/my-reports");
       }, 500);
     }
   };
