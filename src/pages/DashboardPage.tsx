@@ -106,30 +106,33 @@ export default function DashboardPage() {
               </div>
             </CardHeader>
             <CardContent className="space-y-4">
-              {reports.slice(0, 5).map((report) => (
-                <div
-                  key={report.id}
-                  className="p-3 rounded-lg border hover:bg-muted/50 transition-colors cursor-pointer"
-                >
-                  <div className="flex items-start justify-between gap-2 mb-2">
-                    <IncidentBadge type={report.incident_type} size="sm" />
-                    <StatusBadge status={report.status} />
+              {reports
+                .filter((r) => r.status === "verified")
+                .slice(0, 5)
+                .map((report) => (
+                  <div
+                    key={report.id}
+                    className="p-3 rounded-lg border hover:bg-muted/50 transition-colors cursor-pointer"
+                  >
+                    <div className="flex items-start justify-between gap-2 mb-2">
+                      <IncidentBadge type={report.incident_type} size="sm" />
+                      <StatusBadge status={report.status} />
+                    </div>
+                    <p className="text-sm font-medium line-clamp-2 mb-2">
+                      {report.description}
+                    </p>
+                    <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                      <span className="flex items-center gap-1">
+                        <MapPin size={12} />
+                        {report.location_name.split(",")[0]}
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <Clock size={12} />
+                        {formatTimeAgo(report.created_at)}
+                      </span>
+                    </div>
                   </div>
-                  <p className="text-sm font-medium line-clamp-2 mb-2">
-                    {report.description}
-                  </p>
-                  <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                    <span className="flex items-center gap-1">
-                      <MapPin size={12} />
-                      {report.location_name.split(",")[0]}
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <Clock size={12} />
-                      {formatTimeAgo(report.created_at)}
-                    </span>
-                  </div>
-                </div>
-              ))}
+                ))}
             </CardContent>
           </Card>
         </div>

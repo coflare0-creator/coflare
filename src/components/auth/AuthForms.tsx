@@ -232,6 +232,8 @@ export function RegisterForm() {
       },
     });
 
+    console.log(data);
+
     if (error) {
       if (error.message.includes("already registered")) {
         alert("This email is already in use");
@@ -250,7 +252,7 @@ export function RegisterForm() {
         id: data.user.id,
         email: data.user.email,
         name: data.user.user_metadata.name,
-        phone: data.user.phone,
+        phone: data.user.user_metadata.phone,
       });
       navigate("/dashboard");
     }

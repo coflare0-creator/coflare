@@ -1,6 +1,9 @@
-import { motion } from 'framer-motion';
-import { DashboardLayout } from '@/components/layout/DashboardLayout';
-import { AlertsList, NotificationSettings } from '@/components/alerts/AlertsList';
+import { motion } from "framer-motion";
+import { DashboardLayout } from "@/components/layout/DashboardLayout";
+import {
+  AlertsList,
+  NotificationSettings,
+} from "@/components/alerts/AlertsList";
 
 export default function AlertsPage() {
   return (
@@ -21,9 +24,9 @@ export default function AlertsPage() {
           <div className="lg:col-span-2">
             <AlertsList />
           </div>
-          <div>
+          {/* <div>
             <NotificationSettings />
-          </div>
+          </div> */}
         </div>
       </div>
     </DashboardLayout>

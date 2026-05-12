@@ -40,20 +40,21 @@ export interface Report {
   infrastructureImpact?: string[];
   status: ReportStatus;
   created_at: string;
+  alert: string;
   verifiedAt?: string;
   verifiedBy?: string;
 }
 
 export interface Alert {
   id: string;
-  location: string;
+  area: string;
   latitude: number;
   longitude: number;
   radius: number;
-  alertType: IncidentType;
+  type: IncidentType;
   severity: SeverityLevel;
   message: string;
-  sentAt: Date;
+  created_at: Date;
   active: boolean;
 }
 

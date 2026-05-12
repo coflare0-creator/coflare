@@ -1,14 +1,14 @@
-import { useState } from 'react';
-import { motion } from 'framer-motion';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
-import { Switch } from '@/components/ui/switch';
-import { IncidentBadge } from '@/components/ui/incident-badge';
-import { SeverityIndicator } from '@/components/ui/severity-indicator';
-import { mockAlerts } from '@/data/mockData';
-import { format } from 'date-fns';
+import { useEffect, useState } from "react";
+import { motion } from "framer-motion";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { Switch } from "@/components/ui/switch";
+import { IncidentBadge } from "@/components/ui/incident-badge";
+import { SeverityIndicator } from "@/components/ui/severity-indicator";
+import { mockAlerts } from "@/data/mockData";
+import { format } from "date-fns";
 import {
   Bell,
   Search,
@@ -24,22 +24,68 @@ import {
   Trash2,
   Edit,
   Copy,
-} from 'lucide-react';
-import { cn } from '@/lib/utils';
+} from "lucide-react";
+import { cn } from "@/lib/utils";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+} from "@/components/ui/dropdown-menu";
+import { Alert } from "@/types";
+import { supabase } from "@/utils/supabase";
+import { useAuthStore } from "@/utils/useAuthStore";
 
 export function AlertsList() {
-  const [search, setSearch] = useState('');
+  const [search, setSearch] = useState("");
+  const [alerts, setAlerts] = useState<Alert[]>([]);
 
-  const filteredAlerts = mockAlerts.filter(
+  const { user } = useAuthStore();
+
+  const getAlerts = async () => {
+    const { data, error } = await supabase
+      .from("alerts")
+      .select("*")
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      console.error(error.message);
+      return;
+    }
+
+    // console.log(data);
+
+    setAlerts(data);
+  };
+
+  useEffect(() => {
+    getAlerts();
+  }, []);
+
+  const endAlerts = async (alertId: string) => {
+    const { error } = await supabase
+      .from("alerts")
+      .update({ active: false })
+      .eq("id", alertId);
+
+    if (error) {
+      alert(error.message);
+      //setIsLoading(false);
+      return;
+    }
+
+    alert(`Alert ended successfully`);
+    //setIsLoading(false);
+
+    setTimeout(() => {
+      getAlerts();
+    }, 500);
+  };
+
+  const filteredAlerts = alerts.filter(
     (alert) =>
-      alert.location.toLowerCase().includes(search.toLowerCase()) ||
-      alert.message.toLowerCase().includes(search.toLowerCase())
+      alert.area.toLowerCase().includes(search.toLowerCase()) ||
+      alert.message.toLowerCase().includes(search.toLowerCase()),
   );
 
   return (
@@ -58,10 +104,6 @@ export function AlertsList() {
             className="pl-10"
           />
         </div>
-        <Button className="gap-2">
-          <Plus size={18} />
-          Create Alert
-        </Button>
       </div>
 
       {}
@@ -73,7 +115,7 @@ export function AlertsList() {
             </div>
             <div>
               <p className="text-2xl font-bold">
-                {mockAlerts.filter((a) => a.active).length}
+                {alerts.filter((a) => a.active).length}
               </p>
               <p className="text-sm text-muted-foreground">Active Alerts</p>
             </div>
@@ -85,12 +127,12 @@ export function AlertsList() {
               <Smartphone size={20} className="text-primary" />
             </div>
             <div>
-              <p className="text-2xl font-bold">12.4K</p>
-              <p className="text-sm text-muted-foreground">Push Sent Today</p>
+              <p className="text-2xl font-bold">{alerts.length}</p>
+              <p className="text-sm text-muted-foreground">Total Alerts</p>
             </div>
           </div>
         </Card>
-        <Card className="p-4">
+        {/* <Card className="p-4">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-lg bg-success/10 flex items-center justify-center">
               <MessageSquare size={20} className="text-success" />
@@ -100,7 +142,7 @@ export function AlertsList() {
               <p className="text-sm text-muted-foreground">SMS Delivered</p>
             </div>
           </div>
-        </Card>
+        </Card> */}
       </div>
 
       {}
@@ -114,8 +156,8 @@ export function AlertsList() {
           >
             <Card
               className={cn(
-                'overflow-hidden transition-all hover:shadow-md',
-                alert.active && 'border-l-4 border-l-destructive'
+                "overflow-hidden transition-all hover:shadow-md",
+                alert.active && "border-l-4 border-l-destructive",
               )}
             >
               <CardContent className="p-4 sm:p-6">
@@ -123,7 +165,7 @@ export function AlertsList() {
                   <div className="flex-1 space-y-3">
                     <div className="flex items-start justify-between gap-4">
                       <div className="flex items-center gap-3">
-                        <IncidentBadge type={alert.alertType} />
+                        <IncidentBadge type={alert.type} />
                         <SeverityIndicator level={alert.severity} size="sm" />
                         {alert.active ? (
                           <Badge
@@ -137,27 +179,38 @@ export function AlertsList() {
                           <Badge variant="secondary">Ended</Badge>
                         )}
                       </div>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="icon" className="h-8 w-8">
-                            <MoreHorizontal size={16} />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem className="gap-2">
+                      {user.email === "coflare@gmail.com" && (
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8"
+                            >
+                              <MoreHorizontal size={16} />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            {/* <DropdownMenuItem className="gap-2">
                             <Edit size={14} />
                             Edit Alert
-                          </DropdownMenuItem>
-                          <DropdownMenuItem className="gap-2">
+                          </DropdownMenuItem> */}
+                            {/* <DropdownMenuItem className="gap-2">
                             <Copy size={14} />
                             Duplicate
-                          </DropdownMenuItem>
-                          <DropdownMenuItem className="gap-2 text-destructive">
-                            <Trash2 size={14} />
-                            Delete
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
+                          </DropdownMenuItem> */}
+                            {alert.active && (
+                              <DropdownMenuItem
+                                onClick={() => endAlerts(alert.id)}
+                                className="gap-2 text-destructive"
+                              >
+                                <Trash2 size={14} />
+                                End
+                              </DropdownMenuItem>
+                            )}
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      )}
                     </div>
 
                     <p className="font-medium">{alert.message}</p>
@@ -165,33 +218,36 @@ export function AlertsList() {
                     <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
                       <span className="flex items-center gap-1.5">
                         <MapPin size={14} />
-                        {alert.location}
+                        {alert.area}
                       </span>
-                      <span className="flex items-center gap-1.5">
+                      {/* <span className="flex items-center gap-1.5">
                         <Radio size={14} />
-                        {alert.radius}km radius
-                      </span>
+                        {alert.}km radius
+                      </span> */}
                       <span className="flex items-center gap-1.5">
                         <Clock size={14} />
-                        {format(alert.sentAt, 'MMM d, h:mm a')}
+                        {format(alert.created_at, "MMM d, h:mm a")}
                       </span>
                     </div>
                   </div>
 
-                  <div className="flex sm:flex-col items-center gap-3 sm:gap-2 pt-2 sm:pt-0 border-t sm:border-t-0 sm:border-l sm:pl-4">
+                  {/* <div className="flex sm:flex-col items-center gap-3 sm:gap-2 pt-2 sm:pt-0 border-t sm:border-t-0 sm:border-l sm:pl-4">
                     <div className="flex items-center gap-2">
                       <Smartphone size={16} className="text-muted-foreground" />
                       <span className="text-sm font-medium">2.4K</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <MessageSquare size={16} className="text-muted-foreground" />
+                      <MessageSquare
+                        size={16}
+                        className="text-muted-foreground"
+                      />
                       <span className="text-sm font-medium">892</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <Mail size={16} className="text-muted-foreground" />
                       <span className="text-sm font-medium">156</span>
                     </div>
-                  </div>
+                  </div> */}
                 </div>
               </CardContent>
             </Card>
@@ -210,34 +266,34 @@ export function NotificationSettings() {
 
   const channels = [
     {
-      id: 'push',
+      id: "push",
       icon: Smartphone,
-      title: 'Push Notifications',
-      description: 'Instant alerts on your mobile device',
+      title: "Push Notifications",
+      description: "Instant alerts on your mobile device",
       enabled: pushEnabled,
       toggle: setPushEnabled,
     },
     {
-      id: 'sms',
+      id: "sms",
       icon: MessageSquare,
-      title: 'SMS Alerts',
-      description: 'Text messages for critical incidents',
+      title: "SMS Alerts",
+      description: "Text messages for critical incidents",
       enabled: smsEnabled,
       toggle: setSmsEnabled,
     },
     {
-      id: 'email',
+      id: "email",
       icon: Mail,
-      title: 'Email Notifications',
-      description: 'Daily digest and important updates',
+      title: "Email Notifications",
+      description: "Daily digest and important updates",
       enabled: emailEnabled,
       toggle: setEmailEnabled,
     },
     {
-      id: 'whatsapp',
+      id: "whatsapp",
       icon: MessageSquare,
-      title: 'WhatsApp Messages',
-      description: 'Alerts via WhatsApp for quick access',
+      title: "WhatsApp Messages",
+      description: "Alerts via WhatsApp for quick access",
       enabled: whatsappEnabled,
       toggle: setWhatsappEnabled,
     },
@@ -263,10 +319,15 @@ export function NotificationSettings() {
               </div>
               <div>
                 <p className="font-medium">{channel.title}</p>
-                <p className="text-sm text-muted-foreground">{channel.description}</p>
+                <p className="text-sm text-muted-foreground">
+                  {channel.description}
+                </p>
               </div>
             </div>
-            <Switch checked={channel.enabled} onCheckedChange={channel.toggle} />
+            <Switch
+              checked={channel.enabled}
+              onCheckedChange={channel.toggle}
+            />
           </div>
         ))}
       </CardContent>

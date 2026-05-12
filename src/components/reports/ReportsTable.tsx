@@ -44,14 +44,61 @@ import {
   ChevronLeft,
   ChevronRight,
   MapPin,
+  AlertCircleIcon,
 } from "lucide-react";
 import { incidentTypeConfig } from "@/types";
 import { supabase } from "@/utils/supabase";
 import { Report } from "@/types";
+import { useNavigate } from "react-router-dom";
+import { Dialog, DialogContent, DialogTitle } from "@radix-ui/react-dialog";
+import { DialogHeader, DialogOverlay } from "../ui/dialog";
+import axios from "axios";
 
 export function ReportsTable() {
+  const navigate = useNavigate();
   const [reports, setReports] = useState<Report[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+
+  const [search, setSearch] = useState("");
+  const [selectedReports, setSelectedReports] = useState<string[]>([]);
+  const [filterStatus, setFilterStatus] = useState("all");
+  const [filterType, setFilterType] = useState("all");
+
+  const [alertOpen, setAlertOpen] = useState(false);
+  const [selectedReport, setSelectedReport] = useState<Report>();
+
+  const [alertData, setAlertData] = useState({
+    message: "",
+    radius: "",
+    area: "",
+  });
+
+  const filteredReports = reports.filter((report) => {
+    if (filterStatus !== "all" && report.status !== filterStatus) return false;
+    if (filterType !== "all" && report.incident_type !== filterType)
+      return false;
+    if (
+      search &&
+      !report.location_name.toLowerCase().includes(search.toLowerCase()) &&
+      !report.description.toLowerCase().includes(search.toLowerCase())
+    )
+      return false;
+    return true;
+  });
+
+  const toggleReport = (id: string) => {
+    setSelectedReports((prev) =>
+      prev.includes(id) ? prev.filter((r) => r !== id) : [...prev, id],
+    );
+  };
+
+  const toggleAll = () => {
+    if (selectedReports.length === filteredReports.length) {
+      setSelectedReports([]);
+    } else {
+      setSelectedReports(filteredReports.map((r) => r.id));
+    }
+  };
 
   const getReports = async () => {
     const { data, error } = await supabase
@@ -92,35 +139,60 @@ export function ReportsTable() {
       getReports();
     }, 500);
   };
-  const [search, setSearch] = useState("");
-  const [selectedReports, setSelectedReports] = useState<string[]>([]);
-  const [filterStatus, setFilterStatus] = useState("all");
-  const [filterType, setFilterType] = useState("all");
 
-  const filteredReports = reports.filter((report) => {
-    if (filterStatus !== "all" && report.status !== filterStatus) return false;
-    if (filterType !== "all" && report.incident_type !== filterType)
-      return false;
-    if (
-      search &&
-      !report.location_name.toLowerCase().includes(search.toLowerCase()) &&
-      !report.description.toLowerCase().includes(search.toLowerCase())
-    )
-      return false;
-    return true;
-  });
+  const setAlert = async (
+    report: Report,
+    data: { message: string; radius: string; area: string },
+  ) => {
+    setIsLoading(true);
 
-  const toggleReport = (id: string) => {
-    setSelectedReports((prev) =>
-      prev.includes(id) ? prev.filter((r) => r !== id) : [...prev, id],
-    );
-  };
+    try {
+      // 1. Save alert to DB
+      const { data: alertData, error } = await supabase
+        .from("alerts")
+        .insert({
+          type: report.incident_type,
+          severity: report.severity,
+          message: data.message,
+          area: data.area,
+          radius: Number(data.radius),
+        })
+        .select()
+        .single();
 
-  const toggleAll = () => {
-    if (selectedReports.length === filteredReports.length) {
-      setSelectedReports([]);
-    } else {
-      setSelectedReports(filteredReports.map((r) => r.id));
+      if (error) {
+        alert(error.message);
+        return;
+      }
+
+      // 2. Send SMS via backend
+      const response = await axios.post(
+        "http://localhost:3000/api/alerts/send",
+        {
+          incident_type: report.incident_type,
+          severity: report.severity,
+          location_name: data.area,
+          description: data.message,
+        },
+      );
+
+      console.log(response.data);
+
+      if (!response.data.success) {
+        console.error(response.data);
+        alert("Alert saved but SMS failed");
+      } else {
+        alert("Alert sent successfully");
+      }
+
+      setTimeout(() => {
+        navigate("/alerts");
+      }, 500);
+    } catch (err: any) {
+      console.error(err);
+      alert(err.message);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -302,6 +374,18 @@ export function ReportsTable() {
                         <XCircle size={14} />
                         Reject
                       </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => {
+                          setTimeout(() => {
+                            setSelectedReport(report);
+                            setAlertOpen(true);
+                          }, 0);
+                        }}
+                        className="gap-2 text-destructive"
+                      >
+                        <AlertCircleIcon size={14} />
+                        Alert
+                      </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </TableCell>
@@ -310,6 +394,87 @@ export function ReportsTable() {
           </TableBody>
         </Table>
       </div>
+
+      <Dialog open={alertOpen} onOpenChange={setAlertOpen}>
+        <DialogOverlay className="bg-black/10 backdrop-blur-sm" />
+        <DialogContent
+          className="
+    fixed left-1/2 top-1/2 z-50 w-full max-w-md 
+    -translate-x-1/2 -translate-y-1/2
+    animate-in fade-in zoom-in-95
+    bg-white/10 dark:bg-black/30
+    backdrop-blur-xl
+    border border-white/20 dark:border-white/10
+    shadow-2xl
+    rounded-2xl p-6
+  "
+        >
+          {" "}
+          <DialogHeader>
+            <DialogTitle>Send Alert</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <label className="text-sm font-medium">Message</label>
+              <textarea
+                className="w-full border rounded-md p-2 mt-1"
+                value={alertData.message}
+                onChange={(e) =>
+                  setAlertData({ ...alertData, message: e.target.value })
+                }
+              />
+            </div>
+
+            {/* Radius */}
+            <div>
+              <label className="text-sm font-medium">Radius (km)</label>
+              <input
+                type="number"
+                className="w-full border rounded-md p-2 mt-1"
+                value={alertData.radius}
+                onChange={(e) =>
+                  setAlertData({ ...alertData, radius: e.target.value })
+                }
+              />
+            </div>
+
+            {/* Area */}
+            <div>
+              <label className="text-sm font-medium">Approximate Area</label>
+              <input
+                className="w-full border rounded-md p-2 mt-1"
+                value={alertData.area}
+                onChange={(e) =>
+                  setAlertData({ ...alertData, area: e.target.value })
+                }
+              />
+            </div>
+          </div>
+          <div className="flex justify-end gap-2 mt-4">
+            <Button variant="ghost" onClick={() => setAlertOpen(false)}>
+              Cancel
+            </Button>
+
+            <Button
+              onClick={() => {
+                if (!selectedReport) return;
+
+                setAlert(selectedReport, alertData);
+
+                setAlertOpen(false);
+
+                setAlertData({
+                  message: "",
+                  radius: "",
+                  area: "",
+                });
+              }}
+            >
+              Send Alert
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {}
       <div className="p-4 border-t flex items-center justify-between">
