@@ -28,6 +28,7 @@ import {
 import { supabase } from "@/utils/supabase";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "@/utils/useAuthStore";
+import { toast } from "sonner";
 
 export function LoginForm() {
   const { setUser } = useAuthStore();
@@ -59,7 +60,7 @@ export function LoginForm() {
     const formReady = isFormDataComplete();
 
     if (!formReady) {
-      alert("Please input all fields");
+      toast.warning("Please input all fields");
       setIsLoading(false);
       // showToast("Please input all fields", "warning");
 
@@ -72,7 +73,7 @@ export function LoginForm() {
     });
 
     if (error) {
-      alert(error);
+      toast.error(error.message);
       setIsLoading(false);
       return;
     }
@@ -214,7 +215,7 @@ export function RegisterForm() {
     const formReady = isFormDataComplete();
 
     if (!formReady) {
-      alert("Please input all fields");
+      toast.warning("Please input all fields");
       setIsLoading(false);
       // showToast("Please input all fields", "warning");
 
@@ -236,11 +237,11 @@ export function RegisterForm() {
 
     if (error) {
       if (error.message.includes("already registered")) {
-        alert("This email is already in use");
+        toast.info("This email is already in use");
       } else if (error.message.includes("Email not confirmed")) {
-        alert("Please check your email to verify your account");
+        toast.info("Please check your email to verify your account");
       } else {
-        alert("Something went wrong. Try again.");
+        toast.error("Something went wrong. Try again.");
       }
 
       setIsLoading(false);

@@ -54,6 +54,7 @@ import { Dialog, DialogContent, DialogTitle } from "@radix-ui/react-dialog";
 import { DialogHeader, DialogOverlay } from "../ui/dialog";
 import axios from "axios";
 import { useAuthStore } from "@/utils/useAuthStore";
+import { toast } from "sonner";
 
 type ReportsTableProps = {
   user_id?: string | null;
@@ -138,12 +139,12 @@ export function ReportsTable({ user_id }: ReportsTableProps) {
       .eq("id", reportId);
 
     if (error) {
-      alert(error.message);
+      toast.error(error.message);
       setIsLoading(false);
       return;
     }
 
-    alert(`Report ${status} successfully`);
+    toast.success(`Report ${status} successfully`);
     setIsLoading(false);
 
     setTimeout(() => {
@@ -172,7 +173,7 @@ export function ReportsTable({ user_id }: ReportsTableProps) {
         .single();
 
       if (error) {
-        alert(error.message);
+        toast.error(error.message);
         return;
       }
 
@@ -191,9 +192,9 @@ export function ReportsTable({ user_id }: ReportsTableProps) {
 
       if (!response.data.success) {
         console.error(response.data);
-        alert("Alert saved but SMS failed");
+        toast.warning("Alert saved but SMS failed");
       } else {
-        alert("Alert sent successfully");
+        toast.success("Alert sent successfully");
       }
 
       setTimeout(() => {
@@ -201,7 +202,7 @@ export function ReportsTable({ user_id }: ReportsTableProps) {
       }, 500);
     } catch (err: any) {
       console.error(err);
-      alert(err.message);
+      toast.error(err.message);
     } finally {
       setIsLoading(false);
     }

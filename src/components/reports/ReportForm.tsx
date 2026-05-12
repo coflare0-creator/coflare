@@ -44,6 +44,7 @@ import { cn } from "@/lib/utils";
 import { supabase } from "@/utils/supabase";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "@/utils/useAuthStore";
+import { toast } from "sonner";
 
 const iconMap = {
   Waves,
@@ -199,13 +200,13 @@ export function ReportForm() {
       .insert([{ ...payload, user_id: user.id ?? null }]);
 
     if (error) {
-      alert(error.message);
+      toast.error(error.message);
       setIsLoading(false);
       return;
     }
 
     if (success) {
-      alert("Report sent successfully");
+      toast.success("Report sent successfully");
       setIsLoading(false);
 
       setTimeout(() => {

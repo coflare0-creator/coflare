@@ -35,6 +35,7 @@ import {
 import { Alert } from "@/types";
 import { supabase } from "@/utils/supabase";
 import { useAuthStore } from "@/utils/useAuthStore";
+import { toast } from "sonner";
 
 export function AlertsList() {
   const [search, setSearch] = useState("");
@@ -69,12 +70,12 @@ export function AlertsList() {
       .eq("id", alertId);
 
     if (error) {
-      alert(error.message);
+      toast.error(error.message);
       //setIsLoading(false);
       return;
     }
 
-    alert(`Alert ended successfully`);
+    toast.success(`Alert ended successfully`);
     //setIsLoading(false);
 
     setTimeout(() => {
