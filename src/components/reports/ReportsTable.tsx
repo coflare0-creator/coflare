@@ -188,8 +188,6 @@ export function ReportsTable({ user_id }: ReportsTableProps) {
         },
       );
 
-      console.log(response.data);
-
       if (!response.data.success) {
         console.error(response.data);
         toast.warning("Alert saved but SMS failed");
@@ -368,7 +366,7 @@ export function ReportsTable({ user_id }: ReportsTableProps) {
                         View on Map
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
-                      {user.email === "coflare0@gmail.com" && (
+                      {user?.email === "coflare0@gmail.com" && (
                         <>
                           {" "}
                           <DropdownMenuItem
