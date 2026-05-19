@@ -126,20 +126,7 @@ export function ReportsTable({ user_id }: ReportsTableProps) {
         return;
       }
 
-      console.log(data);
-
       setReports(data);
-
-      data.forEach((r) => {
-        if (!incidentTypeConfig[r.incident_type as IncidentType]) {
-          console.warn(
-            "Unknown incident_type:",
-            JSON.stringify(r.incident_type),
-            "| report id:",
-            r.id,
-          );
-        }
-      });
     } catch (error) {
       console.log(error);
     }
