@@ -1,6 +1,6 @@
-import { Badge } from '@/components/ui/badge';
-import { IncidentType, incidentTypeConfig } from '@/types';
-import { cn } from '@/lib/utils';
+import { Badge } from "@/components/ui/badge";
+import { IncidentType, incidentTypeConfig } from "@/types";
+import { cn } from "@/lib/utils";
 import {
   Waves,
   CloudRain,
@@ -10,7 +10,7 @@ import {
   Wind,
   Droplets,
   AlertTriangle,
-} from 'lucide-react';
+} from "lucide-react";
 
 const iconMap = {
   Waves,
@@ -26,18 +26,20 @@ const iconMap = {
 interface IncidentBadgeProps {
   type: IncidentType;
   showIcon?: boolean;
-  size?: 'sm' | 'md' | 'lg';
+  size?: "sm" | "md" | "lg";
   className?: string;
 }
 
-export function IncidentBadge({ type, showIcon = true, size = 'md', className }: IncidentBadgeProps) {
-  const config = incidentTypeConfig[type];
-  const IconComponent = iconMap[config.icon as keyof typeof iconMap];
-
+export function IncidentBadge({
+  type,
+  showIcon = true,
+  size = "md",
+  className,
+}: IncidentBadgeProps) {
   const sizeClasses = {
-    sm: 'text-xs px-2 py-0.5',
-    md: 'text-sm px-2.5 py-1',
-    lg: 'text-base px-3 py-1.5',
+    sm: "text-xs px-2 py-0.5",
+    md: "text-sm px-2.5 py-1",
+    lg: "text-base px-3 py-1.5",
   };
 
   const iconSizes = {
@@ -46,13 +48,32 @@ export function IncidentBadge({ type, showIcon = true, size = 'md', className }:
     lg: 16,
   };
 
+  const config = incidentTypeConfig[type];
+
+  if (!config) {
+    return (
+      <Badge
+        className={cn(
+          sizeClasses[size],
+          "font-medium gap-1.5 border-0",
+          className,
+        )}
+      >
+        {showIcon && <AlertTriangle size={iconSizes[size]} />}
+        {type ?? "Unknown"}
+      </Badge>
+    );
+  }
+
+  const IconComponent = iconMap[config.icon as keyof typeof iconMap];
+
   return (
     <Badge
       className={cn(
         `incident-${type}`,
         sizeClasses[size],
-        'font-medium gap-1.5 border-0',
-        className
+        "font-medium gap-1.5 border-0",
+        className,
       )}
     >
       {showIcon && IconComponent && <IconComponent size={iconSizes[size]} />}
