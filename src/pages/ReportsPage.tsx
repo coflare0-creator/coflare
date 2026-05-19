@@ -9,11 +9,11 @@ export default function ReportsPage() {
   const { user } = useAuthStore();
   const navigate = useNavigate();
 
-  // useEffect(() => {
-  //   if (user.email !== "coflare0@gmail.com") {
-  //     navigate("/dashboard");
-  //   }
-  // });
+  useEffect(() => {
+    if (user.email !== "coflare0@gmail.com") {
+      navigate("/dashboard");
+    }
+  });
 
   return (
     <DashboardLayout>

@@ -179,7 +179,7 @@ export function ReportsTable({ user_id }: ReportsTableProps) {
 
       // 2. Send SMS via backend
       const response = await axios.post(
-        "https://coflare-backend.onrender.com/api/alerts/send",
+        "https://coflare-backend-xdl5.onrender.com/api/alerts/send",
         {
           incident_type: report.incident_type,
           severity: report.severity,
@@ -368,7 +368,7 @@ export function ReportsTable({ user_id }: ReportsTableProps) {
                         View on Map
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
-                      {user.email !== "coflare0@gmail.com" && (
+                      {user.email === "coflare0@gmail.com" && (
                         <>
                           {" "}
                           <DropdownMenuItem
