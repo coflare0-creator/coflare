@@ -350,7 +350,7 @@ export function ReportsTable({ user_id }: ReportsTableProps) {
                     <DropdownMenuTrigger asChild>
                       <Button
                         variant="ghost"
-                        size="icon"
+                        //size="icon"
                         className="h-8 w-8 opacity-0 group-hover:opacity-100"
                       >
                         <MoreHorizontal size={16} />
