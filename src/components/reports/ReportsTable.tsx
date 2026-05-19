@@ -108,24 +108,30 @@ export function ReportsTable({ user_id }: ReportsTableProps) {
   };
 
   const getReports = async () => {
-    let query = supabase
-      .from("reports")
-      .select("*")
-      .order("created_at", { ascending: false });
+    try {
+      let query = supabase
+        .from("reports")
+        .select("*")
+        .order("created_at", { ascending: false });
 
-    // If user_id exists, filter by it
-    if (user_id) {
-      query = query.eq("user_id", user_id);
+      // If user_id exists, filter by it
+      if (user_id) {
+        query = query.eq("user_id", user_id);
+      }
+
+      const { data, error } = await query;
+
+      if (error) {
+        console.error(error.message);
+        return;
+      }
+
+      console.log(data);
+
+      setReports(data);
+    } catch (error) {
+      console.log(error);
     }
-
-    const { data, error } = await query;
-
-    if (error) {
-      console.error(error.message);
-      return;
-    }
-
-    setReports(data);
   };
 
   useEffect(() => {
