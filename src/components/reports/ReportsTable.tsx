@@ -130,7 +130,7 @@ export function ReportsTable({ user_id }: ReportsTableProps) {
 
       setReports(data);
 
-      reports.forEach((r) => {
+      data.forEach((r) => {
         if (!incidentTypeConfig[r.incident_type as IncidentType]) {
           console.warn(
             "Unknown incident_type:",
@@ -222,19 +222,6 @@ export function ReportsTable({ user_id }: ReportsTableProps) {
       setIsLoading(false);
     }
   };
-
-  useEffect(() => {
-    reports.forEach((r) => {
-      if (!incidentTypeConfig[r.incident_type as IncidentType]) {
-        console.warn(
-          "Unknown incident_type:",
-          JSON.stringify(r.incident_type),
-          "| report id:",
-          r.id,
-        );
-      }
-    });
-  }, [reports]);
 
   return (
     <Card className="overflow-hidden">
