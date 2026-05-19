@@ -368,7 +368,7 @@ export function ReportsTable({ user_id }: ReportsTableProps) {
                         View on Map
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
-                      {user.email !== "coflare@gmail.com" && (
+                      {user.email !== "coflare0@gmail.com" && (
                         <>
                           {" "}
                           <DropdownMenuItem

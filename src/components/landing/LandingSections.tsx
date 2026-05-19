@@ -19,6 +19,14 @@ import {
   AlertTriangle,
 } from "lucide-react";
 
+const partners = [
+  "/partners/chsd.jpg",
+  "/partners/ideamaps.png",
+  "/partners/lusg.png",
+  "/partners/sdi.png.webp",
+  "/partners/urbanbetter.jpg",
+];
+
 const features = [
   {
     icon: MapPin,
@@ -404,6 +412,53 @@ export function CTASection() {
               </Button>
             </Link>
           </div>
+        </motion.div>
+      </div>
+    </section>
+  );
+}
+
+export function PartnersSection() {
+  // duplicate for seamless infinite scroll
+  const duplicatedPartners = [...partners, ...partners];
+
+  return (
+    <section className="py-20 bg-background overflow-hidden">
+      <div className="container mx-auto px-4 mb-10">
+        <div className="text-center">
+          <h2 className="text-3xl md:text-4xl font-bold mb-4">Partners</h2>
+
+          <p className="text-muted-foreground max-w-2xl mx-auto">
+            Working together with governments, NGOs, researchers, and
+            international organizations to build resilient communities.
+          </p>
+        </div>
+      </div>
+
+      <div className="relative w-full overflow-hidden">
+        <motion.div
+          className="flex gap-16 w-max"
+          animate={{
+            x: ["0%", "-50%"],
+          }}
+          transition={{
+            repeat: Infinity,
+            ease: "linear",
+            duration: 20,
+          }}
+        >
+          {duplicatedPartners.map((logo, index) => (
+            <div
+              key={index}
+              className="flex items-center justify-center min-w-[180px]"
+            >
+              <img
+                src={logo}
+                alt="Partner logo"
+                className="h-16 w-auto object-contain  opacity-70  transition-all duration-300"
+              />
+            </div>
+          ))}
         </motion.div>
       </div>
     </section>

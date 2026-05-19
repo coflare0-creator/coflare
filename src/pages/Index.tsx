@@ -3,9 +3,10 @@ import {
   FeaturesSection,
   HowItWorksSection,
   CTASection,
-} from '@/components/landing/LandingSections';
-import { Header } from '@/components/layout/Header';
-import { Footer } from '@/components/layout/Footer';
+  PartnersSection,
+} from "@/components/landing/LandingSections";
+import { Header } from "@/components/layout/Header";
+import { Footer } from "@/components/layout/Footer";
 
 const Index = () => {
   return (
@@ -15,6 +16,7 @@ const Index = () => {
         <HeroSection />
         <FeaturesSection />
         <HowItWorksSection />
+        <PartnersSection />
         <CTASection />
       </main>
       <Footer />

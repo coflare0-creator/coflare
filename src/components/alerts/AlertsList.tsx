@@ -180,7 +180,7 @@ export function AlertsList() {
                           <Badge variant="secondary">Ended</Badge>
                         )}
                       </div>
-                      {user.email === "coflare@gmail.com" && (
+                      {user.email === "coflare0@gmail.com" && (
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
                             <Button

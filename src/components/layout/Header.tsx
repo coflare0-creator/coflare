@@ -97,7 +97,7 @@ export function Header() {
               .filter((link) => {
                 if (
                   link.href === "/reports" &&
-                  user?.email !== "coflare@gmail.com"
+                  user?.email !== "coflare0@gmail.com"
                 ) {
                   return false;
                 }
@@ -262,7 +262,7 @@ export function Header() {
                 .filter((link) => {
                   if (
                     link.href === "/reports" &&
-                    user?.email !== "coflare@gmail.com"
+                    user?.email !== "coflare0@gmail.com"
                   ) {
                     return false;
                   }
