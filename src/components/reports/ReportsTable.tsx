@@ -46,7 +46,7 @@ import {
   MapPin,
   AlertCircleIcon,
 } from "lucide-react";
-import { incidentTypeConfig } from "@/types";
+import { IncidentType, incidentTypeConfig } from "@/types";
 import { supabase } from "@/utils/supabase";
 import { Report } from "@/types";
 import { useNavigate } from "react-router-dom";
@@ -205,6 +205,19 @@ export function ReportsTable({ user_id }: ReportsTableProps) {
       setIsLoading(false);
     }
   };
+
+  useEffect(() => {
+    reports.forEach((r) => {
+      if (!incidentTypeConfig[r.incident_type as IncidentType]) {
+        console.warn(
+          "Unknown incident_type:",
+          JSON.stringify(r.incident_type),
+          "| report id:",
+          r.id,
+        );
+      }
+    });
+  }, [reports]);
 
   return (
     <Card className="overflow-hidden">
