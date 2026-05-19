@@ -426,9 +426,11 @@ export function PartnersSection() {
     <section className="py-20 bg-background overflow-hidden">
       <div className="container mx-auto px-4 mb-10">
         <div className="text-center">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">Partners</h2>
+          <h2 className="text-3xl md:text-5xl font-bold mb-6 tracking-tight">
+            Partners
+          </h2>
 
-          <p className="text-muted-foreground max-w-2xl mx-auto">
+          <p className="text-muted-foreground text-lg md:text-xl max-w-2xl mx-auto">
             Working together with governments, NGOs, researchers, and
             international organizations to build resilient communities.
           </p>
