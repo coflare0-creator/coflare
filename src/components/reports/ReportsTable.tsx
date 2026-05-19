@@ -240,11 +240,16 @@ export function ReportsTable({ user_id }: ReportsTableProps) {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Types</SelectItem>
-              {Object.entries(incidentTypeConfig).map(([key, config]) => (
-                <SelectItem key={key} value={key}>
-                  {config.label}
-                </SelectItem>
-              ))}
+              {incidentTypeConfig &&
+                Object.entries(incidentTypeConfig).map(([key, config]) => {
+                  if (!config) return null;
+
+                  return (
+                    <SelectItem key={key} value={key}>
+                      {config.label}
+                    </SelectItem>
+                  );
+                })}
             </SelectContent>
           </Select>
           <Button variant="outline" className="gap-2">
@@ -350,7 +355,7 @@ export function ReportsTable({ user_id }: ReportsTableProps) {
                     <DropdownMenuTrigger asChild>
                       <Button
                         variant="ghost"
-                        //size="icon"
+                        size="icon"
                         className="h-8 w-8 opacity-0 group-hover:opacity-100"
                       >
                         <MoreHorizontal size={16} />
