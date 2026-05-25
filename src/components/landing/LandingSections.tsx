@@ -25,6 +25,7 @@ const partners = [
   "/partners/lusg.png",
   "/partners/sdi.png.webp",
   "/partners/urbanbetter.jpg",
+  "/partners/acrc.png",
 ];
 
 const features = [
