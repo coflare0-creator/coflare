@@ -47,7 +47,7 @@ export const StatsCards = ({ reports }: StatsCardsProps) => {
     {
       title: "Total Reports",
       value: reports.length,
-      change: mockDashboardStats.reportsChange,
+      //change: mockDashboardStats.reportsChange,
       icon: FileText,
       color: "primary",
     },
@@ -61,7 +61,7 @@ export const StatsCards = ({ reports }: StatsCardsProps) => {
     {
       title: "Verified Reports",
       value: reports.filter((r) => r.status === "verified").length,
-      subtitle: "88% verification rate",
+      //subtitle: "88% verification rate",
       icon: CheckCircle2,
       color: "success",
     },
@@ -106,7 +106,7 @@ export const StatsCards = ({ reports }: StatsCardsProps) => {
             <CardContent>
               <div className="flex items-baseline gap-2">
                 <span className="text-3xl font-bold">{stat.value}</span>
-                {stat.change !== undefined && (
+                {/* {stat.change !== undefined && (
                   <span
                     className={cn(
                       "flex items-center text-sm font-medium",
@@ -120,7 +120,7 @@ export const StatsCards = ({ reports }: StatsCardsProps) => {
                     )}
                     {Math.abs(stat.change)}%
                   </span>
-                )}
+                )} */}
               </div>
               {stat.subtitle && (
                 <p className="text-sm text-muted-foreground mt-1">
