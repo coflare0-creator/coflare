@@ -312,7 +312,7 @@ export function RegisterForm() {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="register-phone">Phone (optional)</Label>
+            <Label htmlFor="register-phone">Phone</Label>
             <div className="relative">
               <Phone
                 size={18}
