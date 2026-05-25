@@ -13,13 +13,36 @@ import {
 import { mockDashboardStats } from "@/data/mockData";
 import { cn } from "@/lib/utils";
 import { Report } from "@/types";
+import { useEffect, useState } from "react";
+import { supabase } from "@/utils/supabase";
 
 interface StatsCardsProps {
   reports: Report[];
 }
 
 export const StatsCards = ({ reports }: StatsCardsProps) => {
-  console.log(reports);
+  const [alerts, setAlerts] = useState([]);
+
+  const getAlerts = async () => {
+    const { data, error } = await supabase
+      .from("alerts")
+      .select("*")
+      .eq("active", true)
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      console.error(error.message);
+      return;
+    }
+
+    // console.log(data);
+
+    setAlerts(data);
+  };
+
+  useEffect(() => {
+    getAlerts();
+  });
   const statCards = [
     {
       title: "Total Reports",
@@ -44,7 +67,7 @@ export const StatsCards = ({ reports }: StatsCardsProps) => {
     },
     {
       title: "Active Alerts",
-      value: mockDashboardStats.activeAlerts,
+      value: alerts.length,
       subtitle: "Across 3 regions",
       icon: AlertTriangle,
       color: "destructive",
