@@ -18,6 +18,9 @@ import {
   Trash2,
   AlertTriangle,
 } from "lucide-react";
+import { supabase } from "@/utils/supabase";
+import { useState, useEffect } from "react";
+import axios from "axios";
 
 const partners = [
   "/partners/chsd.jpg",
@@ -62,6 +65,12 @@ const features = [
   },
 ];
 
+interface DashboardStats {
+  total_reports: number;
+  states_covered: number;
+  citizens_protected: number;
+}
+
 const incidentTypes = [
   { icon: Waves, label: "Flooding", color: "flood" },
   { icon: CloudRain, label: "Heavy Rain", color: "rain" },
@@ -79,6 +88,20 @@ const stats = [
 ];
 
 export function HeroSection() {
+  const [data, setData] = useState<DashboardStats>();
+
+  const getStats = async () => {
+    const response = await axios.get(
+      "https://coflare-backend-xdl5.onrender.com/api/dashboard/", //http://localhost:3000
+    );
+    console.log(response.data.data);
+    setData(response.data.data);
+  };
+
+  useEffect(() => {
+    getStats();
+  }, []);
+
   return (
     <section className="relative min-h-screen flex items-center gradient-hero overflow-hidden">
       {}
@@ -192,21 +215,39 @@ export function HeroSection() {
         </motion.div>
 
         {}
-        <motion.div
-          initial={{ opacity: 0, y: 40 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.6 }}
-          className="max-w-4xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-8"
-        >
-          {stats.map((stat, index) => (
-            <div key={index} className="text-center">
+        {data && (
+          <motion.div
+            initial={{ opacity: 0, y: 40 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.6 }}
+            className="max-w-4xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-8"
+          >
+            <div className="text-center">
               <div className="text-3xl md:text-4xl font-bold text-white mb-1">
-                {stat.value}
+                {data.total_reports}
               </div>
-              <div className="text-white/70 text-sm">{stat.label}</div>
+              <div className="text-white/70 text-sm">Reports Submitted</div>
             </div>
-          ))}
-        </motion.div>
+            <div className="text-center">
+              <div className="text-3xl md:text-4xl font-bold text-white mb-1">
+                {data.states_covered}
+              </div>
+              <div className="text-white/70 text-sm">States Covered</div>
+            </div>
+            <div className="text-center">
+              <div className="text-3xl md:text-4xl font-bold text-white mb-1">
+                {data.citizens_protected}
+              </div>
+              <div className="text-white/70 text-sm">Citizens Protected</div>
+            </div>
+            <div className="text-center">
+              <div className="text-3xl md:text-4xl font-bold text-white mb-1">
+                99.9%
+              </div>
+              <div className="text-white/70 text-sm">Uptime</div>
+            </div>
+          </motion.div>
+        )}
       </div>
 
       {}
