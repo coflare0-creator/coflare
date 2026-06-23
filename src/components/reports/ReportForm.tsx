@@ -614,28 +614,44 @@ export function ReportForm() {
                   Uploaded Media ({mediaFiles.length})
                 </Label>
                 <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
-                  {mediaFiles.map((file, index) => (
-                    <div
-                      key={index}
-                      className="relative aspect-square rounded-xl overflow-hidden border shadow-sm group"
-                    >
-                      <img
-                        src={URL.createObjectURL(file)}
-                        alt="Preview"
-                        className="w-full h-full object-cover transition-transform group-hover:scale-105"
-                      />
-                      <button
-                        onClick={(e) => {
-                          setMediaFiles((prev) =>
-                            prev.filter((_, i) => i !== index),
-                          );
-                        }}
-                        className="absolute top-2 right-2 w-7 h-7 bg-black/60 hover:bg-destructive backdrop-blur-sm rounded-full flex items-center justify-center text-white transition-colors"
+                  {mediaFiles.map((file, index) => {
+                    const previewUrl = URL.createObjectURL(file);
+
+                    return (
+                      <div
+                        key={index}
+                        className="relative aspect-square rounded-xl overflow-hidden border shadow-sm group"
                       >
-                        <X size={14} />
-                      </button>
-                    </div>
-                  ))}
+                        {file.type.startsWith("video/") ? (
+                          <video
+                            src={previewUrl}
+                            controls
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <img
+                            src={previewUrl}
+                            alt="Preview"
+                            className="w-full h-full object-cover transition-transform group-hover:scale-105"
+                          />
+                        )}
+
+                        <button
+                          onClick={() => {
+                            setMediaFiles((prev) =>
+                              prev.filter((_, i) => i !== index),
+                            );
+
+                            // cleanup memory
+                            URL.revokeObjectURL(previewUrl);
+                          }}
+                          className="absolute top-2 right-2 w-7 h-7 bg-black/60 hover:bg-destructive backdrop-blur-sm rounded-full flex items-center justify-center text-white transition-colors"
+                        >
+                          <X size={14} />
+                        </button>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             ) : (
