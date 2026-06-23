@@ -207,6 +207,23 @@ export function IncidentMap({
     null,
   );
 
+  interface Media {
+    public_id: string;
+    url: string;
+    type: string;
+  }
+
+  const mediaFiles =
+    selectedReport &&
+    selectedReport.media &&
+    selectedReport.media.map((item) => {
+      const parsed = JSON.parse(item);
+
+      return parsed.image;
+    });
+
+  console.log(mediaFiles);
+
   useEffect(() => {
     const searchAddress = async () => {
       if (addressQuery.length < 3) {
@@ -423,10 +440,30 @@ export function IncidentMap({
             {format(selectedReport.created_at, "MMM d, yyyy h:mm a")}
           </div>
 
-          <Button className="w-full gap-2" size="sm">
-            View Details
-            <ExternalLink size={14} />
-          </Button>
+          {mediaFiles && (
+            <>
+              <div className="font-semibold mb-2 line-clamp-2">Media</div>
+              <div className="grid grid-cols-2 gap-4">
+                {mediaFiles.map((media, index) => (
+                  <div key={index}>
+                    {media.type === "video" ? (
+                      <video
+                        src={media.url}
+                        controls
+                        className="w-full rounded-lg"
+                      />
+                    ) : (
+                      <img
+                        src={media.url}
+                        alt="uploaded media"
+                        className="w-full rounded-lg"
+                      />
+                    )}
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
         </Card>
       )}
     </div>

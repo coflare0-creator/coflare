@@ -45,6 +45,7 @@ import { supabase } from "@/utils/supabase";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "@/utils/useAuthStore";
 import { toast } from "sonner";
+import axios from "axios";
 
 const iconMap = {
   Waves,
@@ -74,10 +75,17 @@ const infrastructureOptions = [
   "Other",
 ];
 
+interface Media {
+  public_id: string;
+  url: string;
+  type: string;
+}
+
 export function ReportForm() {
   const navigate = useNavigate();
   const { user } = useAuthStore();
   const [isLoading, setIsLoading] = useState(false);
+  const [isUploadLoading, setIsUploadLoading] = useState(false);
   const [step, setStep] = useState(1);
   const [incidentType, setIncidentType] = useState<IncidentType | null>(null);
   const [severity, setSeverity] = useState<SeverityLevel | null>(null);
@@ -95,16 +103,17 @@ export function ReportForm() {
   const [suggestions, setSuggestions] = useState<any[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [mediaFiles, setMediaFiles] = useState<File[]>([]);
+  const [media, setMedia] = useState<Media[]>([]);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files.length > 0) {
-      setMediaFiles((prev) => [...prev, ...Array.from(e.target.files!)]);
-    }
-    e.target.value = "";
-  };
+  // const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  //   if (e.target.files && e.target.files.length > 0) {
+  //     setMediaFiles((prev) => [...prev, ...Array.from(e.target.files!)]);
+  //   }
+  //   e.target.value = "";
+  // };
 
   useEffect(() => {
     const searchAddress = async () => {
@@ -192,12 +201,36 @@ export function ReportForm() {
     user_name: user?.name,
   };
 
+  const uploadMedia = async () => {
+    setIsUploadLoading(true);
+    const formData = new FormData();
+
+    mediaFiles.forEach((media) => {
+      formData.append("media", media);
+    });
+
+    try {
+      const response = await axios.post(
+        "https://coflare-backend-xdl5.onrender.com/api/upload/",
+        //"http://localhost:3000/api/upload",
+        formData,
+      );
+
+      toast.success("Media upload successful");
+      setIsUploadLoading(false);
+      setMedia(response.data.data);
+    } catch (error) {
+      setIsUploadLoading(false);
+      toast.error("Media upload failed");
+    }
+  };
+
   const submit = async () => {
     setIsLoading(true);
 
     const { success, error } = await supabase
       .from("reports")
-      .insert([{ ...payload, user_id: user.id ?? null }]);
+      .insert([{ ...payload, media, user_id: user.id ?? null }]);
 
     if (error) {
       toast.error(error.message);
@@ -510,40 +543,55 @@ export function ReportForm() {
               </span>
             </div>
 
-            <input
+            {/* <input
               type="file"
               accept="image/*,video/*"
-              className="hidden"
+              //className="hidden"
               ref={fileInputRef}
               onChange={handleFileChange}
               multiple
-            />
-            <input
+            /> */}
+            {/* <input
               type="file"
               accept="image/*,video/*"
               capture="environment"
-              className="hidden"
+              //className="hidden"
               ref={cameraInputRef}
               onChange={handleFileChange}
-            />
+            /> */}
 
             <div className="grid grid-cols-2 gap-4">
-              <button
-                onClick={() => fileInputRef.current?.click()}
-                className="aspect-[4/3] rounded-xl border-2 border-dashed border-border hover:border-primary/50 flex flex-col items-center justify-center gap-3 transition-colors bg-muted/20"
-              >
-                <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
-                  <Upload size={24} className="text-primary" />
+              <div className="relative aspect-[4/3]">
+                <input
+                  type="file"
+                  accept="image/*,video/*"
+                  multiple
+                  onChange={(e) => {
+                    if (e.target.files)
+                      setMediaFiles((prev) => [
+                        ...prev,
+                        ...Array.from(e.target.files || []),
+                      ]);
+                  }}
+                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                />
+
+                <div className="h-full rounded-xl border-2 border-dashed border-border hover:border-primary/50 flex flex-col items-center justify-center gap-3 transition-colors bg-muted/20">
+                  <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+                    <Upload size={24} className="text-primary" />
+                  </div>
+
+                  <div className="text-center">
+                    <span className="text-sm font-medium block">
+                      Upload Photo
+                    </span>
+                    <span className="text-xs text-muted-foreground">
+                      From Gallery
+                    </span>
+                  </div>
                 </div>
-                <div className="text-center">
-                  <span className="text-sm font-medium block">
-                    Upload Photo
-                  </span>
-                  <span className="text-xs text-muted-foreground">
-                    From Gallery
-                  </span>
-                </div>
-              </button>
+              </div>
+
               <button
                 onClick={() => cameraInputRef.current?.click()}
                 className="aspect-[4/3] rounded-xl border-2 border-dashed border-border hover:border-primary/50 flex flex-col items-center justify-center gap-3 transition-colors bg-muted/20"
@@ -578,7 +626,6 @@ export function ReportForm() {
                       />
                       <button
                         onClick={(e) => {
-                          e.preventDefault();
                           setMediaFiles((prev) =>
                             prev.filter((_, i) => i !== index),
                           );
@@ -600,16 +647,35 @@ export function ReportForm() {
             )}
 
             {mediaFiles.length > 0 && (
-              <div className="p-4 rounded-lg bg-success/10 border border-success/30">
-                <div className="flex items-start gap-3">
-                  <Check size={20} className="text-success mt-0.5" />
-                  <div>
-                    <p className="font-medium text-success">Ready to Submit</p>
-                    <p className="text-sm text-muted-foreground">
-                      Your report will be reviewed by our moderation team.
-                    </p>
+              <div className="">
+                <div className="p-4 rounded-lg bg-success/10 border border-success/30">
+                  <div className="flex items-start gap-3">
+                    <Check size={20} className="text-success mt-0.5" />
+                    <div>
+                      <p className="font-medium text-success">
+                        Ready to Submit
+                      </p>
+                      <p className="text-sm text-muted-foreground">
+                        Your report will be reviewed by our moderation team.
+                      </p>
+                    </div>
                   </div>
                 </div>
+
+                <Button
+                  className="gap-2 px-8 mt-8"
+                  disabled={mediaFiles.length === 0}
+                  onClick={uploadMedia}
+                >
+                  {isUploadLoading ? (
+                    <Loader2 size={18} className="animate-spin" />
+                  ) : (
+                    <>
+                      <Upload size={18} />
+                      Upload
+                    </>
+                  )}
+                </Button>
               </div>
             )}
           </motion.div>
@@ -641,7 +707,7 @@ export function ReportForm() {
           ) : (
             <Button
               className="gap-2 px-8"
-              //disabled={mediaFiles.length === 0}
+              disabled={media.length === 0}
               onClick={submit}
             >
               {isLoading ? (

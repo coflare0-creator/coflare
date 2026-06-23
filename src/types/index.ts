@@ -35,7 +35,7 @@ export interface Report {
   latitude: number;
   longitude: number;
   location_name: string;
-  mediaUrls: string[];
+  media: string[];
   water_depth?: "ankle" | "knee" | "waist" | "above";
   infrastructureImpact?: string[];
   status: ReportStatus;
