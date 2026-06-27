@@ -264,7 +264,7 @@ export function ReportsTable({ user_id }: ReportsTableProps) {
       </div>
 
       {}
-      {selectedReports.length > 0 && (
+      {selectedReports.length > 0 && user.email === "coflare0@gmail.com" && (
         <div className="px-4 py-2 bg-primary/5 border-b flex items-center gap-4">
           <span className="text-sm font-medium">
             {selectedReports.length} selected
@@ -293,12 +293,14 @@ export function ReportsTable({ user_id }: ReportsTableProps) {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-12">
-                <Checkbox
-                  checked={selectedReports.length === filteredReports.length}
-                  onCheckedChange={toggleAll}
-                />
-              </TableHead>
+              {user.email === "coflare0@gmail.com" && (
+                <TableHead className="w-12">
+                  <Checkbox
+                    checked={selectedReports.length === filteredReports.length}
+                    onCheckedChange={toggleAll}
+                  />
+                </TableHead>
+              )}
               <TableHead>Report</TableHead>
               <TableHead>Type</TableHead>
               <TableHead>Severity</TableHead>
@@ -317,12 +319,14 @@ export function ReportsTable({ user_id }: ReportsTableProps) {
                 transition={{ delay: index * 0.03 }}
                 className="group hover:bg-muted/50"
               >
-                <TableCell>
-                  <Checkbox
-                    checked={selectedReports.includes(report.id)}
-                    onCheckedChange={() => toggleReport(report.id)}
-                  />
-                </TableCell>
+                {user.email === "coflare0@gmail.com" && (
+                  <TableCell>
+                    <Checkbox
+                      checked={selectedReports.includes(report.id)}
+                      onCheckedChange={() => toggleReport(report.id)}
+                    />
+                  </TableCell>
+                )}
                 <TableCell>
                   <div>
                     <p className="font-medium text-sm line-clamp-1 max-w-xs">

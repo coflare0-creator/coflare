@@ -18,7 +18,7 @@ export default function MapPage() {
       return;
     }
 
-    console.log(data);
+    //console.log(data);
 
     setReports(data);
   };

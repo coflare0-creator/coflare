@@ -713,7 +713,9 @@ export function ReportForm() {
             <Button
               onClick={() => setStep((s) => s + 1)}
               disabled={
-                (step === 1 && !incidentType) || (step === 2 && !severity)
+                (step === 1 && !incidentType) ||
+                (step === 2 && !severity) ||
+                (step === 3 && !location)
               }
               className="gap-2"
             >
