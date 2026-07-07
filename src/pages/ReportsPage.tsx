@@ -10,14 +10,16 @@ export default function ReportsPage() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (
-      user?.email === "coflare0@gmail.com" ||
-      user?.email === "lekeham@gmail.com" ||
-      user?.email === "obanishola122@gmail.com"
-    ) {
+    const allowedEmails = [
+      "coflare0@gmail.com",
+      "lekeham@gmail.com",
+      "obamishola122@gmail.com",
+    ];
+
+    if (user?.email && !allowedEmails.includes(user.email)) {
       navigate("/dashboard");
     }
-  });
+  }, [user?.email, navigate]);
 
   return (
     <DashboardLayout>
