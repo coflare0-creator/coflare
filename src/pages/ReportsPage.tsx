@@ -13,7 +13,7 @@ export default function ReportsPage() {
     const allowedEmails = [
       "coflare0@gmail.com",
       "lekeham@gmail.com",
-      "obamishola122@gmail.com",
+      "obanishola122@gmail.com",
     ];
 
     if (user?.email && !allowedEmails.includes(user.email)) {
