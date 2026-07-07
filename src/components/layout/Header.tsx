@@ -266,7 +266,11 @@ export function Header() {
                 .filter((link) => {
                   if (
                     link.href === "/reports" &&
-                    user?.email !== "coflare0@gmail.com"
+                    ![
+                      "coflare0@gmail.com",
+                      "lekeham@gmail.com",
+                      "obanishola122@gmail.com",
+                    ].includes(user?.email)
                   ) {
                     return false;
                   }
