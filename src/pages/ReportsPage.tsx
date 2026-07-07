@@ -10,7 +10,11 @@ export default function ReportsPage() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (user.email !== "coflare0@gmail.com") {
+    if (
+      user?.email === "coflare0@gmail.com" ||
+      user?.email === "lekeham@gmail.com" ||
+      user?.email === "obanishola122@gmail.com"
+    ) {
       navigate("/dashboard");
     }
   });

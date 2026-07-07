@@ -293,7 +293,9 @@ export function ReportsTable({ user_id }: ReportsTableProps) {
         <Table>
           <TableHeader>
             <TableRow>
-              {user.email === "coflare0@gmail.com" && (
+              {(user?.email === "coflare0@gmail.com" ||
+                user?.email === "lekeham@gmail.com" ||
+                user?.email === "obanishola122@gmail.com") && (
                 <TableHead className="w-12">
                   <Checkbox
                     checked={selectedReports.length === filteredReports.length}
@@ -319,7 +321,9 @@ export function ReportsTable({ user_id }: ReportsTableProps) {
                 transition={{ delay: index * 0.03 }}
                 className="group hover:bg-muted/50"
               >
-                {user.email === "coflare0@gmail.com" && (
+                {(user?.email === "coflare0@gmail.com" ||
+                  user?.email === "lekeham@gmail.com" ||
+                  user?.email === "obanishola122@gmail.com") && (
                   <TableCell>
                     <Checkbox
                       checked={selectedReports.includes(report.id)}
@@ -381,7 +385,7 @@ export function ReportsTable({ user_id }: ReportsTableProps) {
                       <DropdownMenuSeparator />
                       {(user?.email === "coflare0@gmail.com" ||
                         user?.email === "lekeham@gmail.com" ||
-                        user?.email === "obamishola122@gmail.com") && (
+                        user?.email === "obanishola122@gmail.com") && (
                         <>
                           {" "}
                           <DropdownMenuItem
