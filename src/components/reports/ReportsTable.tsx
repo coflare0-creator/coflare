@@ -380,7 +380,8 @@ export function ReportsTable({ user_id }: ReportsTableProps) {
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
                       {(user?.email === "coflare0@gmail.com" ||
-                        user?.email === "lekeham@gmail.com") && (
+                        user?.email === "lekeham@gmail.com" ||
+                        user?.email === "obamishola122@gmail.com") && (
                         <>
                           {" "}
                           <DropdownMenuItem
