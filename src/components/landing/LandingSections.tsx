@@ -92,8 +92,8 @@ export function HeroSection() {
 
   const getStats = async () => {
     const response = await axios.get(
-      //"https://coflare-backend-xdl5.onrender.com/api/dashboard/",
-      "http://localhost:3000",
+      "https://coflare-backend-xdl5.onrender.com/api/dashboard/",
+      //"http://localhost:3000/api/dashboard/",
     );
     console.log(response.data.data);
     setData(response.data.data);
