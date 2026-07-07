@@ -28,7 +28,10 @@ import {
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { IncidentBadge } from "@/components/ui/incident-badge";
-import { SeverityDots } from "@/components/ui/severity-indicator";
+import {
+  SeverityDots,
+  SeverityIndicator,
+} from "@/components/ui/severity-indicator";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { mockReports } from "@/data/mockData";
 import { format } from "date-fns";
@@ -45,6 +48,8 @@ import {
   ChevronRight,
   MapPin,
   AlertCircleIcon,
+  Clock,
+  X,
 } from "lucide-react";
 import { IncidentType, incidentTypeConfig } from "@/types";
 import { supabase } from "@/utils/supabase";
@@ -92,6 +97,15 @@ export function ReportsTable({ user_id }: ReportsTableProps) {
       return false;
     return true;
   });
+
+  const mediaFiles =
+    selectedReport &&
+    selectedReport.media &&
+    selectedReport.media.map((item) => {
+      const parsed = JSON.parse(item);
+
+      return parsed.image;
+    });
 
   const toggleReport = (id: string) => {
     setSelectedReports((prev) =>
@@ -374,7 +388,12 @@ export function ReportsTable({ user_id }: ReportsTableProps) {
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                      <DropdownMenuItem className="gap-2">
+                      <DropdownMenuItem
+                        className="gap-2"
+                        onClick={() => {
+                          setSelectedReport(report);
+                        }}
+                      >
                         <Eye size={14} />
                         View Details
                       </DropdownMenuItem>
@@ -533,6 +552,65 @@ export function ReportsTable({ user_id }: ReportsTableProps) {
           </Button>
         </div>
       </div>
+
+      {selectedReport && (
+        <Card className="absolute right-4 bottom-4 z-[1000] p-4 w-80 bg-card/95 backdrop-blur-sm">
+          <div className="flex items-start justify-between mb-3">
+            <IncidentBadge type={selectedReport.incident_type} />
+            <Button
+              size="icon"
+              variant="ghost"
+              className="h-8 w-8 -mr-2 -mt-2"
+              onClick={() => setSelectedReport(null)}
+            >
+              <X size={16} />
+            </Button>
+          </div>
+
+          <h4 className="font-semibold mb-2 line-clamp-2">
+            {selectedReport.location_name}
+          </h4>
+
+          <p className="text-sm text-muted-foreground mb-3 line-clamp-3">
+            {selectedReport.description}
+          </p>
+
+          <div className="flex items-center gap-4 mb-3">
+            <SeverityIndicator level={selectedReport.severity} size="sm" />
+            <StatusBadge status={selectedReport.status} />
+          </div>
+
+          <div className="flex items-center gap-2 text-sm text-muted-foreground mb-4">
+            <Clock size={14} />
+            {format(selectedReport.created_at, "MMM d, yyyy h:mm a")}
+          </div>
+
+          {mediaFiles && (
+            <>
+              <div className="font-semibold mb-2 line-clamp-2">Media</div>
+              <div className="grid grid-cols-2 gap-4">
+                {mediaFiles.map((media, index) => (
+                  <div key={index}>
+                    {media.type === "video" ? (
+                      <video
+                        src={media.url}
+                        controls
+                        className="w-full rounded-lg"
+                      />
+                    ) : (
+                      <img
+                        src={media.url}
+                        alt="uploaded media"
+                        className="w-full rounded-lg"
+                      />
+                    )}
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
+        </Card>
+      )}
     </Card>
   );
 }

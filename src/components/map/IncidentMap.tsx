@@ -222,7 +222,7 @@ export function IncidentMap({
       return parsed.image;
     });
 
-  console.log(mediaFiles);
+  //console.log(mediaFiles);
 
   useEffect(() => {
     const searchAddress = async () => {
