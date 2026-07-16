@@ -158,6 +158,8 @@ export function ReportsTable({ user_id }: ReportsTableProps) {
       }
 
       setReports(allReports);
+
+      console.log(reports);
     } catch (error) {
       console.error(error);
     }
@@ -166,8 +168,6 @@ export function ReportsTable({ user_id }: ReportsTableProps) {
   useEffect(() => {
     getReports();
   }, []);
-
-  console.log(reports);
 
   const updateReportStatus = async (reportId: string, status: string) => {
     const { error } = await supabase
