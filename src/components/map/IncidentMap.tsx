@@ -42,23 +42,23 @@ import { format } from "date-fns";
 
 const NIGERIA_CENTER: LatLngExpression = [9.082, 8.6753];
 
-function createIncidentIcon(type: IncidentType, severity: number) {
-  const colors: Record<IncidentType, string> = {
-    flood: "#2596be",
-    rain: "#4aa8d8",
-    storm: "#7c5bb0",
-    heat: "#e87f3e",
-    waste: "#8b6914",
-    pollution: "#9b59b6",
-    "water-scarcity": "#e67e22",
-    hazard: "#e74c3c",
-  };
+const INCIDENT_COLORS: Record<IncidentType, string> = {
+  flood: "#2596be",
+  rain: "#4aa8d8",
+  storm: "#7c5bb0",
+  heat: "#e87f3e",
+  waste: "#8b6914",
+  pollution: "#9b59b6",
+  "water-scarcity": "#e67e22",
+  hazard: "#e74c3c",
+};
 
+function createIncidentIcon(type: IncidentType, severity: number) {
   return new DivIcon({
     html: `
       <div class="relative flex items-center justify-center">
-        <div class="absolute w-8 h-8 rounded-full opacity-30 animate-ping" style="background-color: ${colors[type]}"></div>
-        <div class="w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-sm shadow-lg" style="background-color: ${colors[type]}">
+        <div class="absolute w-8 h-8 rounded-full opacity-30 animate-ping" style="background-color: ${INCIDENT_COLORS[type]}"></div>
+        <div class="w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-sm shadow-lg" style="background-color: ${INCIDENT_COLORS[type]}">
           ${severity}
         </div>
       </div>
@@ -199,6 +199,7 @@ export function IncidentMap({
   const [filterType, setFilterType] = useState<string>("all");
   const [filterSeverity, setFilterSeverity] = useState<string>("all");
   const [showAlertZones, setShowAlertZones] = useState(true);
+  const [filtersOpen, setFiltersOpen] = useState(true);
 
   const [addressQuery, setAddressQuery] = useState("");
   const [suggestions, setSuggestions] = useState<any[]>([]);
@@ -325,66 +326,96 @@ export function IncidentMap({
       </Card>
 
       {}
+      {}
       {showFilters && (
-        <Card className="absolute left-4 top-4 z-[1000] p-4 w-64 bg-card/95 backdrop-blur-sm">
-          <div className="flex items-center gap-2 mb-4">
-            <Filter size={18} className="text-primary" />
-            <span className="font-semibold">Filters</span>
-          </div>
+        <>
+          <Button
+            size="icon"
+            variant="secondary"
+            className="absolute left-4 top-4 z-[1000] h-10 w-10 bg-card text-foreground shadow-md hover:bg-accent hover:text-accent-foreground"
+            onClick={() => setFiltersOpen((o) => !o)}
+          >
+            <Filter size={18} />
+          </Button>
 
-          <div className="space-y-4">
-            <div>
-              <label className="text-sm text-muted-foreground mb-1.5 block">
-                Incident Type
-              </label>
-              <Select value={filterType} onValueChange={setFilterType}>
-                <SelectTrigger>
-                  <SelectValue placeholder="All Types" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Types</SelectItem>
-                  {Object.entries(incidentTypeConfig).map(([key, config]) => (
-                    <SelectItem key={key} value={key}>
-                      {config.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+          {filtersOpen && (
+            <Card className="absolute left-4 top-16 z-[1000] p-4 w-64 bg-card/95 backdrop-blur-sm">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-2">
+                  <Filter size={18} className="text-primary" />
+                  <span className="font-semibold">Filters</span>
+                </div>
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  className="h-6 w-6 -mr-1 -mt-1"
+                  onClick={() => setFiltersOpen(false)}
+                >
+                  <X size={14} />
+                </Button>
+              </div>
 
-            <div>
-              <label className="text-sm text-muted-foreground mb-1.5 block">
-                Severity
-              </label>
-              <Select value={filterSeverity} onValueChange={setFilterSeverity}>
-                <SelectTrigger>
-                  <SelectValue placeholder="All Levels" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Levels</SelectItem>
-                  <SelectItem value="5">Critical (5)</SelectItem>
-                  <SelectItem value="4">Severe (4)</SelectItem>
-                  <SelectItem value="3">Significant (3)</SelectItem>
-                  <SelectItem value="2">Moderate (2)</SelectItem>
-                  <SelectItem value="1">Minor (1)</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+              <div className="space-y-4">
+                <div>
+                  <label className="text-sm text-muted-foreground mb-1.5 block">
+                    Incident Type
+                  </label>
+                  <Select value={filterType} onValueChange={setFilterType}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="All Types" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Types</SelectItem>
+                      {Object.entries(incidentTypeConfig).map(
+                        ([key, config]) => (
+                          <SelectItem key={key} value={key}>
+                            {config.label}
+                          </SelectItem>
+                        ),
+                      )}
+                    </SelectContent>
+                  </Select>
+                </div>
 
-            <div className="flex items-center gap-2">
-              <Checkbox
-                id="alerts"
-                checked={showAlertZones}
-                onCheckedChange={(c) => setShowAlertZones(c as boolean)}
-              />
-              <label htmlFor="alerts" className="text-sm cursor-pointer">
-                Show Alert Zones
-              </label>
-            </div>
-          </div>
-        </Card>
+                <div>
+                  <label className="text-sm text-muted-foreground mb-1.5 block">
+                    Severity
+                  </label>
+                  <Select
+                    value={filterSeverity}
+                    onValueChange={setFilterSeverity}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="All Levels" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Levels</SelectItem>
+                      <SelectItem value="5">Critical (5)</SelectItem>
+                      <SelectItem value="4">Severe (4)</SelectItem>
+                      <SelectItem value="3">Significant (3)</SelectItem>
+                      <SelectItem value="2">Moderate (2)</SelectItem>
+                      <SelectItem value="1">Minor (1)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <Checkbox
+                    id="alerts"
+                    checked={showAlertZones}
+                    onCheckedChange={(c) => setShowAlertZones(c as boolean)}
+                  />
+                  <label htmlFor="alerts" className="text-sm cursor-pointer">
+                    Show Alert Zones
+                  </label>
+                </div>
+              </div>
+            </Card>
+          )}
+        </>
       )}
 
+      {}
       {}
       {showLegend && (
         <Card className="absolute left-4 bottom-4 z-[1000] p-3 bg-card/95 backdrop-blur-sm">
@@ -398,7 +429,10 @@ export function IncidentMap({
               .map(([key, config]) => (
                 <div key={key} className="flex items-center gap-1.5">
                   <span
-                    className={cn("w-3 h-3 rounded-full", `incident-${key}`)}
+                    className="w-3 h-3 rounded-full shrink-0"
+                    style={{
+                      backgroundColor: INCIDENT_COLORS[key as IncidentType],
+                    }}
                   />
                   <span className="text-muted-foreground">{config.label}</span>
                 </div>
