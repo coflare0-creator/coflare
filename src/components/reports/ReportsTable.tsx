@@ -121,28 +121,45 @@ export function ReportsTable({ user_id }: ReportsTableProps) {
     }
   };
 
+  const PAGE_SIZE = 1000;
+
   const getReports = async () => {
     try {
-      let query = supabase
-        .from("reports")
-        .select("*")
-        .order("created_at", { ascending: false });
+      let allReports = [];
+      let from = 0;
+      let hasMore = true;
 
-      // If user_id exists, filter by it
-      if (user_id) {
-        query = query.eq("user_id", user_id);
+      while (hasMore) {
+        let query = supabase
+          .from("reports")
+          .select("*")
+          .order("created_at", { ascending: false })
+          .range(from, from + PAGE_SIZE - 1);
+
+        if (user_id) {
+          query = query.eq("user_id", user_id);
+        }
+
+        const { data, error } = await query;
+
+        if (error) {
+          console.error(error.message);
+          return;
+        }
+
+        allReports.push(...data);
+
+        // Stop if we received fewer than PAGE_SIZE rows
+        if (data.length < PAGE_SIZE) {
+          hasMore = false;
+        } else {
+          from += PAGE_SIZE;
+        }
       }
 
-      const { data, error } = await query;
-
-      if (error) {
-        console.error(error.message);
-        return;
-      }
-
-      setReports(data);
+      setReports(allReports);
     } catch (error) {
-      console.log(error);
+      console.error(error);
     }
   };
 
