@@ -85,6 +85,10 @@ export function ReportsTable({ user_id }: ReportsTableProps) {
     area: "",
   });
 
+  // Pagination
+  const ITEMS_PER_PAGE = 20;
+  const [currentPage, setCurrentPage] = useState(1);
+
   const filteredReports = reports.filter((report) => {
     if (filterStatus !== "all" && report.status !== filterStatus) return false;
     if (filterType !== "all" && report.incident_type !== filterType)
@@ -97,6 +101,28 @@ export function ReportsTable({ user_id }: ReportsTableProps) {
       return false;
     return true;
   });
+
+  const totalPages = Math.max(
+    1,
+    Math.ceil(filteredReports.length / ITEMS_PER_PAGE),
+  );
+
+  const paginatedReports = filteredReports.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE,
+  );
+
+  // Reset to page 1 whenever filters/search change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [search, filterStatus, filterType]);
+
+  // Clamp current page if filtered results shrink (e.g. after a status update)
+  useEffect(() => {
+    if (currentPage > totalPages) {
+      setCurrentPage(totalPages);
+    }
+  }, [totalPages, currentPage]);
 
   const mediaFiles =
     selectedReport &&
@@ -114,10 +140,16 @@ export function ReportsTable({ user_id }: ReportsTableProps) {
   };
 
   const toggleAll = () => {
-    if (selectedReports.length === filteredReports.length) {
-      setSelectedReports([]);
+    const pageIds = paginatedReports.map((r) => r.id);
+    const allPageSelected = pageIds.every((id) => selectedReports.includes(id));
+
+    if (allPageSelected) {
+      setSelectedReports((prev) => prev.filter((id) => !pageIds.includes(id)));
     } else {
-      setSelectedReports(filteredReports.map((r) => r.id));
+      setSelectedReports((prev) => [
+        ...prev,
+        ...pageIds.filter((id) => !prev.includes(id)),
+      ]);
     }
   };
 
@@ -241,6 +273,23 @@ export function ReportsTable({ user_id }: ReportsTableProps) {
     }
   };
 
+  // Build a small windowed list of page numbers around the current page
+  const getPageNumbers = () => {
+    const pages: number[] = [];
+    const windowSize = 2;
+    const start = Math.max(1, currentPage - windowSize);
+    const end = Math.min(totalPages, currentPage + windowSize);
+
+    for (let i = start; i <= end; i++) {
+      pages.push(i);
+    }
+    return pages;
+  };
+
+  const pageNumbers = getPageNumbers();
+  const firstPageNumber = pageNumbers[0];
+  const lastPageNumber = pageNumbers[pageNumbers.length - 1];
+
   return (
     <Card className="overflow-hidden">
       {}
@@ -329,7 +378,12 @@ export function ReportsTable({ user_id }: ReportsTableProps) {
                 user?.email === "obanishola122@gmail.com") && (
                 <TableHead className="w-12">
                   <Checkbox
-                    checked={selectedReports.length === filteredReports.length}
+                    checked={
+                      paginatedReports.length > 0 &&
+                      paginatedReports.every((r) =>
+                        selectedReports.includes(r.id),
+                      )
+                    }
                     onCheckedChange={toggleAll}
                   />
                 </TableHead>
@@ -344,7 +398,7 @@ export function ReportsTable({ user_id }: ReportsTableProps) {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filteredReports.map((report, index) => (
+            {paginatedReports.map((report, index) => (
               <motion.tr
                 key={report.id}
                 initial={{ opacity: 0, y: 10 }}
@@ -549,22 +603,121 @@ export function ReportsTable({ user_id }: ReportsTableProps) {
       {}
       <div className="p-4 border-t flex items-center justify-between">
         <p className="text-sm text-muted-foreground">
-          Showing {filteredReports.length} of {reports.length} reports
+          Showing{" "}
+          {filteredReports.length === 0
+            ? 0
+            : (currentPage - 1) * ITEMS_PER_PAGE + 1}
+          –{Math.min(currentPage * ITEMS_PER_PAGE, filteredReports.length)} of{" "}
+          {filteredReports.length} reports
         </p>
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" disabled>
+          <Button
+            variant="outline"
+            size="sm"
+            disabled={currentPage === 1}
+            onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+          >
             <ChevronLeft size={16} />
           </Button>
-          <Button variant="outline" size="sm" className="min-w-8">
-            1
-          </Button>
-          <Button variant="ghost" size="sm" className="min-w-8">
-            2
-          </Button>
-          <Button variant="ghost" size="sm" className="min-w-8">
-            3
-          </Button>
-          <Button variant="outline" size="sm">
+
+          {getPageNumbers()[0] > 1 && (
+            <>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="min-w-8"
+                onClick={() => setCurrentPage(1)}
+              >
+                1
+              </Button>
+              {getPageNumbers()[0] > 2 && (
+                <span className="text-sm text-muted-foreground px-1">…</span>
+              )}
+            </>
+          )}
+
+          {getPageNumbers().map((page) => (
+            <Button
+              key={page}
+              variant={page === currentPage ? "outline" : "ghost"}
+              size="sm"
+              className="min-w-8"
+              onClick={() => setCurrentPage(page)}
+            >
+              {page}
+            </Button>
+          ))}
+
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={currentPage === 1}
+              onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+            >
+              <ChevronLeft size={16} />
+            </Button>
+
+            {firstPageNumber > 1 && (
+              <>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="min-w-8"
+                  onClick={() => setCurrentPage(1)}
+                >
+                  1
+                </Button>
+                {firstPageNumber > 2 && (
+                  <span className="text-sm text-muted-foreground px-1">…</span>
+                )}
+              </>
+            )}
+
+            {pageNumbers.map((page) => (
+              <Button
+                key={page}
+                variant={page === currentPage ? "outline" : "ghost"}
+                size="sm"
+                className="min-w-8"
+                onClick={() => setCurrentPage(page)}
+              >
+                {page}
+              </Button>
+            ))}
+
+            {lastPageNumber < totalPages && (
+              <>
+                {lastPageNumber < totalPages - 1 && (
+                  <span className="text-sm text-muted-foreground px-1">…</span>
+                )}
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="min-w-8"
+                  onClick={() => setCurrentPage(totalPages)}
+                >
+                  {totalPages}
+                </Button>
+              </>
+            )}
+
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={currentPage === totalPages}
+              onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+            >
+              <ChevronRight size={16} />
+            </Button>
+          </div>
+
+          <Button
+            variant="outline"
+            size="sm"
+            disabled={currentPage === totalPages}
+            onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+          >
             <ChevronRight size={16} />
           </Button>
         </div>
