@@ -25,20 +25,42 @@ import { formatTimeAgo } from "@/utils/formatDate";
 export default function DashboardPage() {
   const [reports, setReports] = useState<Report[]>([]);
 
+  const PAGE_SIZE = 1000;
+
   const getReports = async () => {
-    const { data, error } = await supabase
-      .from("reports")
-      .select("*")
-      .order("created_at", { ascending: false });
+    try {
+      let allReports = [];
+      let from = 0;
+      let hasMore = true;
 
-    if (error) {
-      console.error(error.message);
-      return;
+      while (hasMore) {
+        let query = supabase
+          .from("reports")
+          .select("*")
+          .order("created_at", { ascending: false })
+          .range(from, from + PAGE_SIZE - 1);
+
+        const { data, error } = await query;
+
+        if (error) {
+          console.error(error.message);
+          return;
+        }
+
+        allReports.push(...data);
+
+        // Stop if we received fewer than PAGE_SIZE rows
+        if (data.length < PAGE_SIZE) {
+          hasMore = false;
+        } else {
+          from += PAGE_SIZE;
+        }
+      }
+
+      setReports(allReports);
+    } catch (error) {
+      console.error(error);
     }
-
-    //console.log(data);
-
-    setReports(data);
   };
 
   useEffect(() => {
