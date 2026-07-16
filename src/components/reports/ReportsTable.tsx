@@ -121,45 +121,28 @@ export function ReportsTable({ user_id }: ReportsTableProps) {
     }
   };
 
-  const PAGE_SIZE = 1000;
-
   const getReports = async () => {
     try {
-      let allReports = [];
-      let from = 0;
-      let hasMore = true;
+      let query = supabase
+        .from("reports")
+        .select("*")
+        .order("created_at", { ascending: false });
 
-      while (hasMore) {
-        let query = supabase
-          .from("reports")
-          .select("*")
-          .order("created_at", { ascending: false })
-          .range(from, from + PAGE_SIZE - 1);
-
-        if (user_id) {
-          query = query.eq("user_id", user_id);
-        }
-
-        const { data, error } = await query;
-
-        if (error) {
-          console.error(error.message);
-          return;
-        }
-
-        allReports.push(...data);
-
-        // Stop if we received fewer than PAGE_SIZE rows
-        if (data.length < PAGE_SIZE) {
-          hasMore = false;
-        } else {
-          from += PAGE_SIZE;
-        }
+      // If user_id exists, filter by it
+      if (user_id) {
+        query = query.eq("user_id", user_id);
       }
 
-      setReports(allReports);
+      const { data, error } = await query;
+
+      if (error) {
+        console.error(error.message);
+        return;
+      }
+
+      setReports(data);
     } catch (error) {
-      console.error(error);
+      console.log(error);
     }
   };
 
