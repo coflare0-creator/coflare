@@ -142,6 +142,10 @@ export function ReportsTable({ user_id }: ReportsTableProps) {
 
         const { data, error } = await query;
 
+        console.log(
+          `Fetched ${data.length} rows (from ${from} to ${from + PAGE_SIZE - 1})`,
+        );
+
         if (error) {
           console.error(error.message);
           return;
@@ -159,7 +163,7 @@ export function ReportsTable({ user_id }: ReportsTableProps) {
 
       setReports(allReports);
 
-      console.log(reports);
+      console.log(allReports);
     } catch (error) {
       console.error(error);
     }
