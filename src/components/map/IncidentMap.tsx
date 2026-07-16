@@ -484,12 +484,15 @@ export function IncidentMap({
                       <video
                         src={media.url}
                         controls
+                        preload="none"
                         className="w-full rounded-lg"
                       />
                     ) : (
                       <img
                         src={media.url}
                         alt="uploaded media"
+                        loading="lazy"
+                        decoding="async"
                         className="w-full rounded-lg"
                       />
                     )}

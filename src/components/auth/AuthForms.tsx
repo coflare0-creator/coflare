@@ -155,7 +155,7 @@ export function LoginForm() {
           </Button>
         </form>
 
-        <div className="mt-6">
+        {/* <div className="mt-6">
           <div className="relative">
             <div className="absolute inset-0 flex items-center">
               <Separator />
@@ -168,7 +168,7 @@ export function LoginForm() {
           <Button variant="outline" className="w-full mt-4">
             Continue as Anonymous Reporter
           </Button>
-        </div>
+        </div> */}
 
         <p className="text-center text-sm text-muted-foreground mt-6">
           Don't have an account?{" "}
