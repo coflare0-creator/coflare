@@ -167,6 +167,8 @@ export function ReportsTable({ user_id }: ReportsTableProps) {
     getReports();
   }, []);
 
+  console.log(reports);
+
   const updateReportStatus = async (reportId: string, status: string) => {
     const { error } = await supabase
       .from("reports")
