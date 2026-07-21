@@ -14,6 +14,13 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   Globe,
   Mail,
   Phone,
@@ -84,6 +91,7 @@ export function LoginForm() {
         email: data.user.email,
         name: data.user.user_metadata.name,
         phone: data.user.phone,
+        role: data.user.user_metadata.role,
       });
       navigate("/dashboard");
     }
@@ -194,7 +202,12 @@ export function RegisterForm() {
     email: "",
     phone: "",
     password: "",
+    role: "",
   });
+
+  const handleRoleChange = (value: string) => {
+    setSignInData((prev) => ({ ...prev, role: value }));
+  };
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
@@ -229,11 +242,12 @@ export function RegisterForm() {
         data: {
           name: signinData.name,
           phone: signinData.phone,
+          role: signinData.role,
         },
       },
     });
 
-    console.log(data);
+    // console.log(data);
 
     if (error) {
       if (error.message.includes("already registered")) {
@@ -254,6 +268,7 @@ export function RegisterForm() {
         email: data.user.email,
         name: data.user.user_metadata.name,
         phone: data.user.user_metadata.phone,
+        role: data.user.user_metadata.role,
       });
       navigate("/dashboard");
     }
@@ -356,6 +371,30 @@ export function RegisterForm() {
             <p className="text-xs text-muted-foreground">
               Must be at least 8 characters
             </p>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="register-role">What best describes you?</Label>
+            <Select value={signinData.role} onValueChange={handleRoleChange}>
+              <SelectTrigger id="register-role">
+                <SelectValue placeholder="Select an option" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="academic-research">
+                  Academic/Research
+                </SelectItem>
+                <SelectItem value="civil-society">Civil Society</SelectItem>
+                <SelectItem value="private-business">
+                  Private Business
+                </SelectItem>
+                <SelectItem value="community-member-researcher">
+                  Community member/Researcher
+                </SelectItem>
+                <SelectItem value="international-organization">
+                  International Organization
+                </SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
           <Button

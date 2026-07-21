@@ -6,7 +6,7 @@ import { Download } from "lucide-react";
 import { supabase } from "@/utils/supabase";
 import { Report } from "@/types";
 import { incidentTypeConfig } from "@/types";
-import { parseLocationName } from "./parselocationName";
+//import { parseLocationName } from "./parselocationName";
 
 const SEVERITY_LABELS: Record<number, string> = {
   5: "Critical",
