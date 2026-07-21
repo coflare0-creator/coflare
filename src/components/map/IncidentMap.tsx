@@ -43,8 +43,8 @@ import { format } from "date-fns";
 const NIGERIA_CENTER: LatLngExpression = [9.082, 8.6753];
 
 const INCIDENT_COLORS: Record<IncidentType, string> = {
-  flood: "#2596be",
-  rain: "#4aa8d8",
+  flood: "#0d6e8f",
+  rain: "#7ec8e3",
   storm: "#7c5bb0",
   heat: "#e87f3e",
   waste: "#8b6914",

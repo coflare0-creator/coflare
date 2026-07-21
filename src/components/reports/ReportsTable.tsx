@@ -60,6 +60,7 @@ import { DialogHeader, DialogOverlay } from "../ui/dialog";
 import axios from "axios";
 import { useAuthStore } from "@/utils/useAuthStore";
 import { toast } from "sonner";
+import { ReportsExport } from "@/utils/ReportsExport.tsx";
 
 type ReportsTableProps = {
   user_id?: string | null;
@@ -336,10 +337,10 @@ export function ReportsTable({ user_id }: ReportsTableProps) {
                 })}
             </SelectContent>
           </Select>
-          <Button variant="outline" className="gap-2">
-            <Download size={16} />
-            Export
-          </Button>
+          <ReportsExport
+            filteredReports={filteredReports}
+            selectedReportIds={selectedReports}
+          />
         </div>
       </div>
 
